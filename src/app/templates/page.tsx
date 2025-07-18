@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from 'react';
-import { PlusCircle, MessageSquareText, FolderPlus, Inbox } from 'lucide-react';
+import { PlusCircle, MessageSquareText, FolderPlus, Inbox, Folder } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TemplateCard } from '@/components/template-card';
 import { TemplateFormDialog } from '@/components/template-form-dialog';
-import type { Template, Folder } from '@/lib/types';
+import type { Template, Folder as FolderType } from '@/lib/types';
 import {
   Sidebar,
   SidebarContent,
@@ -27,7 +27,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 
-const initialFolders: Folder[] = [
+const initialFolders: FolderType[] = [
   { id: '1', name: 'Marketing' },
   { id: '2', name: 'Appointments' },
   { id: '3', name: 'General' },
@@ -65,7 +65,7 @@ const initialTemplates: Template[] = [
 ];
 
 export default function TemplatesPage() {
-  const [folders, setFolders] = useState<Folder[]>(initialFolders);
+  const [folders, setFolders] = useState<FolderType[]>(initialFolders);
   const [templates, setTemplates] = useState<Template[]>(initialTemplates);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isFolderFormOpen, setIsFolderFormOpen] = useState(false);
@@ -85,7 +85,7 @@ export default function TemplatesPage() {
 
   const handleSaveFolder = () => {
     if (newFolderName.trim()) {
-      const newFolder: Folder = {
+      const newFolder: FolderType = {
         id: (folders.length + 1).toString(),
         name: newFolderName.trim(),
       };
@@ -135,7 +135,7 @@ export default function TemplatesPage() {
             {folders.map(folder => (
               <SidebarMenuItem key={folder.id}>
                 <SidebarMenuButton onClick={() => setActiveFolder(folder.name)} isActive={activeFolder === folder.name} tooltip={folder.name}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L8.6 3.3a2 2 0 0 0-1.7-.9H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2Z"></path></svg>
+                  <Folder />
                   {folder.name}
                 </SidebarMenuButton>
               </SidebarMenuItem>
