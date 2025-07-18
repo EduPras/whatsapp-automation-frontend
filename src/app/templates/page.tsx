@@ -7,18 +7,6 @@ import { TemplateCard } from '@/components/template-card';
 import { TemplateFormDialog } from '@/components/template-form-dialog';
 import type { Template, Folder as FolderType } from '@/lib/types';
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarProvider,
-  SidebarInset,
-  SidebarTrigger,
-} from '@/components/ui/sidebar';
-import { Input } from '@/components/ui/input';
-import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -26,6 +14,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 
 const initialFolders: FolderType[] = [
   { id: '1', name: 'Marketing' },
@@ -116,69 +105,59 @@ export default function TemplatesPage() {
     : templates.filter(t => t.folder === activeFolder);
 
   return (
-    <SidebarProvider>
-      <Sidebar side="left" collapsible="icon">
-        <SidebarHeader>
-          <Button variant="ghost" className="w-full justify-start gap-2" onClick={() => setIsFolderFormOpen(true)}>
-            <FolderPlus />
-            <span className="group-data-[collapsible=icon]:hidden">New Folder</span>
+    <div className="flex h-full">
+      <div className="w-64 border-r bg-card p-4 flex-shrink-0">
+        <Button variant="ghost" className="w-full justify-start gap-2 mb-4" onClick={() => setIsFolderFormOpen(true)}>
+          <FolderPlus />
+          New Folder
+        </Button>
+        <nav className="flex flex-col gap-1">
+          <Button onClick={() => setActiveFolder('All')} variant={activeFolder === 'All' ? 'secondary' : 'ghost'} className="justify-start gap-2">
+            <Inbox />
+            All Templates
           </Button>
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton onClick={() => setActiveFolder('All')} isActive={activeFolder === 'All'} tooltip="All Templates">
-                <Inbox />
-                All Templates
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            {folders.map(folder => (
-              <SidebarMenuItem key={folder.id}>
-                <SidebarMenuButton onClick={() => setActiveFolder(folder.name)} isActive={activeFolder === folder.name} tooltip={folder.name}>
-                  <Folder />
-                  {folder.name}
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarContent>
-      </Sidebar>
-      <SidebarInset>
-        <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-8 max-w-7xl mx-auto">
-            <h1 className="text-3xl font-bold font-headline tracking-tight flex items-center gap-2">
-              <SidebarTrigger className="md:hidden" />
-              {activeFolder}
-            </h1>
-            <Button onClick={handleCreateNew} className="bg-accent hover:bg-accent/90 text-accent-foreground">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Create Template
+          {folders.map(folder => (
+            <Button key={folder.id} onClick={() => setActiveFolder(folder.name)} variant={activeFolder === folder.name ? 'secondary' : 'ghost'} className="justify-start gap-2">
+              <Folder />
+              {folder.name}
             </Button>
-          </div>
+          ))}
+        </nav>
+      </div>
 
-          {filteredTemplates.length > 0 ? (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 max-w-7xl mx-auto">
-              {filteredTemplates.map(template => (
-                <TemplateCard key={template.id} template={template} onEdit={handleEdit} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-16 border-2 border-dashed rounded-lg max-w-7xl mx-auto">
-              <MessageSquareText className="mx-auto h-12 w-12 text-muted-foreground" />
-              <h3 className="mt-4 text-lg font-medium">No templates in this folder</h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Get started by creating a new message template.
-              </p>
-              <div className="mt-6">
-                 <Button onClick={handleCreateNew} className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Create Template
-                </Button>
-              </div>
-            </div>
-          )}
+      <div className="flex-1 p-8">
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-bold font-headline tracking-tight">
+            {activeFolder}
+          </h1>
+          <Button onClick={handleCreateNew} className="bg-accent hover:bg-accent/90 text-accent-foreground">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Create Template
+          </Button>
         </div>
-      </SidebarInset>
+
+        {filteredTemplates.length > 0 ? (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {filteredTemplates.map(template => (
+              <TemplateCard key={template.id} template={template} onEdit={handleEdit} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16 border-2 border-dashed rounded-lg">
+            <MessageSquareText className="mx-auto h-12 w-12 text-muted-foreground" />
+            <h3 className="mt-4 text-lg font-medium">No templates in this folder</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Get started by creating a new message template.
+            </p>
+            <div className="mt-6">
+               <Button onClick={handleCreateNew} className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Create Template
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
 
       <TemplateFormDialog
         isOpen={isFormOpen}
@@ -209,6 +188,6 @@ export default function TemplatesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </SidebarProvider>
+    </div>
   );
 }
