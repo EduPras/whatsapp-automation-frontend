@@ -10,3 +10,19 @@ export interface Template {
   createdAt: Date;
   folder: string;
 }
+
+export interface Contact {
+  id: string;
+  name: string;
+  email: string;
+  avatarUrl: string;
+}
+
+export interface ScheduledMessage {
+  id: string;
+  contact: Contact;
+  content: string;
+  scheduledAt: Date;
+  status: 'scheduled' | 'sent' | 'failed';
+  templateId?: string;
+}

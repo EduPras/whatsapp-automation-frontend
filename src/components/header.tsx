@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { MessageSquareText, LogOut, Settings } from 'lucide-react';
+import { LogOut, Settings } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -10,16 +10,17 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
+import { SidebarTrigger } from './ui/sidebar';
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-card shadow-sm">
+    <header className="sticky top-0 z-40 w-full border-b bg-card shadow-sm">
       <div className="container mx-auto flex h-16 items-center px-4 sm:px-6 lg:px-8">
-        <Link href="/templates" className="flex items-center gap-2 text-lg font-semibold">
-          <MessageSquareText className="h-6 w-6 text-primary" />
-          <span className="hidden font-headline sm:block">Scheduled Messenger</span>
-        </Link>
-        <div className="ml-auto flex items-center space-x-4">
+        <div className="md:hidden">
+            <SidebarTrigger />
+        </div>
+        <div className="flex-1"></div>
+        <div className="flex items-center space-x-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
