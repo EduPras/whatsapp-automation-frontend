@@ -1,4 +1,5 @@
-import { CalendarClock, Folder, Inbox, MessageSquareText, PlusCircle } from "lucide-react";
+
+import { CalendarClock, Inbox, MessageSquareText } from "lucide-react";
 import Link from "next/link";
 import { Header } from '@/components/header';
 import { Toaster } from "@/components/ui/toaster";
@@ -13,7 +14,6 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { Button } from "@/components/ui/button";
 
 export default function AppLayout({
   children,
