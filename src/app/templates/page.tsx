@@ -145,7 +145,7 @@ export default function TemplatesPage() {
       </Sidebar>
       <SidebarInset>
         <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-8 max-w-7xl mx-auto">
             <h1 className="text-3xl font-bold font-headline tracking-tight flex items-center gap-2">
               <SidebarTrigger className="md:hidden" />
               {activeFolder}
@@ -157,13 +157,13 @@ export default function TemplatesPage() {
           </div>
 
           {filteredTemplates.length > 0 ? (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 max-w-7xl mx-auto">
               {filteredTemplates.map(template => (
                 <TemplateCard key={template.id} template={template} onEdit={handleEdit} />
               ))}
             </div>
           ) : (
-            <div className="text-center py-16 border-2 border-dashed rounded-lg">
+            <div className="text-center py-16 border-2 border-dashed rounded-lg max-w-7xl mx-auto">
               <MessageSquareText className="mx-auto h-12 w-12 text-muted-foreground" />
               <h3 className="mt-4 text-lg font-medium">No templates in this folder</h3>
               <p className="mt-1 text-sm text-muted-foreground">
