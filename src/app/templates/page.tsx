@@ -1,20 +1,13 @@
 "use client";
 
 import { useState } from 'react';
-import { PlusCircle, MessageSquareText, FolderPlus, Inbox, Folder } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { PlusCircle, MessageSquareText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TemplateCard } from '@/components/template-card';
 import { TemplateFormDialog } from '@/components/template-form-dialog';
 import type { Template, Folder as FolderType } from '@/lib/types';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
+
 
 const initialFolders: FolderType[] = [
   { id: '1', name: 'Marketing' },
@@ -54,13 +47,15 @@ const initialTemplates: Template[] = [
 ];
 
 export default function TemplatesPage() {
-  const [folders, setFolders] = useState<FolderType[]>(initialFolders);
+  const searchParams = useSearchParams();
+  const folderParam = searchParams.get('folder');
+  
+  const [folders] = useState<FolderType[]>(initialFolders);
   const [templates, setTemplates] = useState<Template[]>(initialTemplates);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [isFolderFormOpen, setIsFolderFormOpen] = useState(false);
-  const [newFolderName, setNewFolderName] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
-  const [activeFolder, setActiveFolder] = useState<string>('All');
+
+  const activeFolder = folderParam || 'All';
 
   const handleCreateNew = () => {
     setSelectedTemplate(null);
@@ -70,18 +65,6 @@ export default function TemplatesPage() {
   const handleEdit = (template: Template) => {
     setSelectedTemplate(template);
     setIsFormOpen(true);
-  };
-
-  const handleSaveFolder = () => {
-    if (newFolderName.trim()) {
-      const newFolder: FolderType = {
-        id: (folders.length + 1).toString(),
-        name: newFolderName.trim(),
-      };
-      setFolders([...folders, newFolder]);
-      setNewFolderName('');
-      setIsFolderFormOpen(false);
-    }
   };
 
   const handleSaveTemplate = (templateData: Omit<Template, 'id' | 'createdAt'>) => {
@@ -105,30 +88,10 @@ export default function TemplatesPage() {
     : templates.filter(t => t.folder === activeFolder);
 
   return (
-    <div className="flex h-full">
-      <div className="w-64 border-r bg-card p-4 flex-shrink-0">
-        <Button variant="ghost" className="w-full justify-start gap-2 mb-4" onClick={() => setIsFolderFormOpen(true)}>
-          <FolderPlus />
-          New Folder
-        </Button>
-        <nav className="flex flex-col gap-1">
-          <Button onClick={() => setActiveFolder('All')} variant={activeFolder === 'All' ? 'secondary' : 'ghost'} className="justify-start gap-2">
-            <Inbox />
-            All Templates
-          </Button>
-          {folders.map(folder => (
-            <Button key={folder.id} onClick={() => setActiveFolder(folder.name)} variant={activeFolder === folder.name ? 'secondary' : 'ghost'} className="justify-start gap-2">
-              <Folder />
-              {folder.name}
-            </Button>
-          ))}
-        </nav>
-      </div>
-
-      <div className="flex-1 p-8">
+      <div className="p-8">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold font-headline tracking-tight">
-            {activeFolder}
+            {activeFolder} Templates
           </h1>
           <Button onClick={handleCreateNew} className="bg-accent hover:bg-accent/90 text-accent-foreground">
             <PlusCircle className="mr-2 h-4 w-4" />
@@ -157,8 +120,7 @@ export default function TemplatesPage() {
             </div>
           </div>
         )}
-      </div>
-
+      
       <TemplateFormDialog
         isOpen={isFormOpen}
         onOpenChange={setIsFormOpen}
@@ -167,27 +129,6 @@ export default function TemplatesPage() {
         folders={folders.map(f => f.name)}
         activeFolder={activeFolder}
       />
-
-      <Dialog open={isFolderFormOpen} onOpenChange={setIsFolderFormOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create New Folder</DialogTitle>
-            <DialogDescription>Enter a name for your new folder.</DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <Input
-              placeholder="Folder name"
-              value={newFolderName}
-              onChange={(e) => setNewFolderName(e.target.value)}
-              autoFocus
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsFolderFormOpen(false)}>Cancel</Button>
-            <Button onClick={handleSaveFolder}>Save</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
