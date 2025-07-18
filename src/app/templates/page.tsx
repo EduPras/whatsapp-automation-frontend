@@ -7,6 +7,16 @@ import { Button } from '@/components/ui/button';
 import { TemplateCard } from '@/components/template-card';
 import { TemplateFormDialog } from '@/components/template-form-dialog';
 import type { Template, Folder as FolderType } from '@/lib/types';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 
 const initialFolders: FolderType[] = [
@@ -54,6 +64,7 @@ export default function TemplatesPage() {
   const [templates, setTemplates] = useState<Template[]>(initialTemplates);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+  const [templateToDelete, setTemplateToDelete] = useState<string | null>(null);
 
   const activeFolder = folderParam || 'All';
 
@@ -65,6 +76,17 @@ export default function TemplatesPage() {
   const handleEdit = (template: Template) => {
     setSelectedTemplate(template);
     setIsFormOpen(true);
+  };
+
+  const handleDelete = (templateId: string) => {
+    setTemplateToDelete(templateId);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (templateToDelete) {
+      setTemplates(templates.filter(t => t.id !== templateToDelete));
+      setTemplateToDelete(null);
+    }
   };
 
   const handleSaveTemplate = (templateData: Omit<Template, 'id' | 'createdAt'>) => {
@@ -102,7 +124,12 @@ export default function TemplatesPage() {
         {filteredTemplates.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredTemplates.map(template => (
-              <TemplateCard key={template.id} template={template} onEdit={handleEdit} />
+              <TemplateCard 
+                key={template.id} 
+                template={template} 
+                onEdit={handleEdit} 
+                onDelete={handleDelete}
+              />
             ))}
           </div>
         ) : (
@@ -129,6 +156,23 @@ export default function TemplatesPage() {
         folders={folders.map(f => f.name)}
         activeFolder={activeFolder}
       />
+
+      <AlertDialog open={!!templateToDelete} onOpenChange={() => setTemplateToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the template.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setTemplateToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-destructive hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
