@@ -31,6 +31,7 @@ import { format } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
 import type { Contact, ScheduledMessage } from '@/lib/types';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 
 // Mock data - in a real app, this would come from a database/API
 const initialContacts: Contact[] = [
@@ -65,7 +66,9 @@ const formSchema = z.object({
   scheduledAtTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:MM)."),
 });
 
-export default function EditScheduledMessagePage({ params }: { params: { id: string } }) {
+export default function EditScheduledMessagePage() {
+  const params = useParams();
+  const id = params.id as string;
   const [contacts] = useState<Contact[]>(initialContacts);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [message, setMessage] = useState<ScheduledMessage | null>(null);
@@ -81,17 +84,19 @@ export default function EditScheduledMessagePage({ params }: { params: { id: str
   });
 
   useEffect(() => {
-    const messageToEdit = initialScheduledMessages.find(m => m.id === params.id);
-    if (messageToEdit) {
-        setMessage(messageToEdit);
-        form.reset({
-            contactId: messageToEdit.contact.id,
-            content: messageToEdit.content,
-            scheduledAtDate: messageToEdit.scheduledAt,
-            scheduledAtTime: format(messageToEdit.scheduledAt, 'HH:mm'),
-        });
+    if (id) {
+        const messageToEdit = initialScheduledMessages.find(m => m.id === id);
+        if (messageToEdit) {
+            setMessage(messageToEdit);
+            form.reset({
+                contactId: messageToEdit.contact.id,
+                content: messageToEdit.content,
+                scheduledAtDate: messageToEdit.scheduledAt,
+                scheduledAtTime: format(messageToEdit.scheduledAt, 'HH:mm'),
+            });
+        }
     }
-  }, [params.id, form]);
+  }, [id, form]);
 
   const contentValue = form.watch('content');
 
@@ -282,3 +287,5 @@ export default function EditScheduledMessagePage({ params }: { params: { id: str
     </div>
   );
 }
+
+    
