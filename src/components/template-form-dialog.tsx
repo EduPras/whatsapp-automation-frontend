@@ -17,11 +17,19 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import type { Template } from '@/lib/types';
@@ -33,11 +41,14 @@ interface TemplateFormDialogProps {
   onOpenChange: (isOpen: boolean) => void;
   template: Template | null;
   onSave: (data: Omit<Template, 'id' | 'createdAt'>) => void;
+  folders: string[];
+  activeFolder: string;
 }
 
 const formSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters long.'),
   content: z.string().min(10, 'Content must be at least 10 characters long.'),
+  folder: z.string().min(1, 'Please select a folder.'),
 });
 
 export function TemplateFormDialog({
@@ -45,6 +56,8 @@ export function TemplateFormDialog({
   onOpenChange,
   template,
   onSave,
+  folders,
+  activeFolder,
 }: TemplateFormDialogProps) {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const { toast } = useToast();
@@ -54,6 +67,7 @@ export function TemplateFormDialog({
     defaultValues: {
       title: '',
       content: '',
+      folder: '',
     },
   });
 
@@ -64,9 +78,10 @@ export function TemplateFormDialog({
       form.reset({
         title: template?.title || '',
         content: template?.content || '',
+        folder: template?.folder || (activeFolder !== 'All' ? activeFolder : (folders[0] || ''))
       });
     }
-  }, [isOpen, template, form]);
+  }, [isOpen, template, form, activeFolder, folders]);
 
   const handleAiEnrich = async () => {
     const currentContent = form.getValues('content');
@@ -126,6 +141,30 @@ export function TemplateFormDialog({
                       <FormControl>
                         <Input placeholder="e.g., Welcome Message" {...field} />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="folder"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Folder</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a folder" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {folders.map((folderName) => (
+                            <SelectItem key={folderName} value={folderName}>
+                              {folderName}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
