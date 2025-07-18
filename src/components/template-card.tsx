@@ -23,12 +23,12 @@ export function TemplateCard({ template, onEdit }: TemplateCardProps) {
       <CardContent className="flex-grow">
         <p className="text-sm text-muted-foreground line-clamp-3">{template.content}</p>
       </CardContent>
-      <CardFooter className="flex gap-2">
-        <Button variant="outline" size="sm" className="w-full" onClick={() => onEdit(template)}>
+      <CardFooter className="flex justify-end gap-2">
+        <Button variant="outline" size="sm" onClick={() => onEdit(template)}>
           <Pencil className="mr-2 h-4 w-4" />
           Edit
         </Button>
-        <Button asChild size="sm" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
+        <Button asChild size="sm" className="bg-accent hover:bg-accent/90 text-accent-foreground">
             <Link href={`/templates/schedule?templateId=${template.id}`}>
                 <Send className="mr-2 h-4 w-4" />
                 Schedule
