@@ -1,3 +1,4 @@
+
 export interface Folder {
   id: string;
   name: string;
@@ -12,7 +13,7 @@ export interface Template {
 }
 
 export interface Contact {
-  id: string;
+  id:string;
   name: string;
   email: string;
   avatarUrl: string;
@@ -20,7 +21,7 @@ export interface Contact {
 
 export interface ScheduledMessage {
   id: string;
-  contact: Contact;
+  contacts: Contact[];
   content: string;
   scheduledAt: Date;
   status: 'scheduled' | 'sent' | 'failed';

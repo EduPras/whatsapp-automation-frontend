@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { CalendarIcon, Clock, Send, Sparkles, Loader2, UserPlus } from 'lucide-react';
+import { CalendarIcon, Clock, Send, Sparkles, Loader2, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -16,13 +16,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -32,7 +25,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
 import type { Contact } from '@/lib/types';
-import Link from 'next/link';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const initialContacts: Contact[] = [
   { id: '1', name: 'Alice Johnson', email: 'alice@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
@@ -41,30 +34,29 @@ const initialContacts: Contact[] = [
 ];
 
 const formSchema = z.object({
-  contactId: z.string().min(1, 'Please select a contact.'),
+  contactIds: z.array(z.string()).nonempty({ message: 'Please select at least one contact.' }),
   content: z.string().min(10, 'Content must be at least 10 characters long.'),
   scheduledAtDate: z.date({ required_error: "Please select a date." }),
   scheduledAtTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:MM)."),
 });
 
 export default function FreestyleSchedulePage() {
-  const [contacts, setContacts] = useState<Contact[]>(initialContacts);
+  const [contacts] = useState<Contact[]>(initialContacts);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      contactId: '',
+      contactIds: [],
       content: '',
       scheduledAtTime: '09:00',
     },
   });
 
-  const contentValue = form.watch('content');
+  const selectedContactsCount = form.watch('contactIds').length;
 
   const handleAiEnrich = async () => {
-    // Placeholder for AI enrichment
     toast({ title: "AI enrichment coming soon!" });
   };
   
@@ -72,10 +64,8 @@ export default function FreestyleSchedulePage() {
     console.log(values);
     toast({
       title: "Message Scheduled!",
-      description: `Your message to ${contacts.find(c => c.id === values.contactId)?.name} has been scheduled.`,
+      description: `Your message has been scheduled for ${values.contactIds.length} contacts.`,
     });
-    // Here you would typically redirect or clear the form
-    // router.push('/scheduled');
   };
 
   return (
@@ -90,35 +80,61 @@ export default function FreestyleSchedulePage() {
       <Card>
           <CardHeader>
               <CardTitle>Compose Message</CardTitle>
-              <CardDescription>Schedule a personal message for a specific contact.</CardDescription>
+              <CardDescription>Schedule a personal message for one or more contacts.</CardDescription>
           </CardHeader>
           <CardContent>
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                       <FormField
                           control={form.control}
-                          name="contactId"
-                          render={({ field }) => (
+                          name="contactIds"
+                          render={() => (
                               <FormItem>
-                              <FormLabel>Contact</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                  <FormControl>
-                                  <SelectTrigger>
-                                      <SelectValue placeholder="Select a contact" />
-                                  </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                  {contacts.map((contact) => (
-                                      <SelectItem key={contact.id} value={contact.id}>
-                                      {contact.name}
-                                      </SelectItem>
+                                  <div className="mb-4">
+                                      <FormLabel className="text-base flex items-center gap-2"><Users/> Contacts</FormLabel>
+                                      <FormDescription>
+                                      Select the contacts to send this message to.
+                                      </FormDescription>
+                                  </div>
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-h-60 overflow-y-auto p-2 border rounded-md">
+                                  {contacts.map((item) => (
+                                      <FormField
+                                      key={item.id}
+                                      control={form.control}
+                                      name="contactIds"
+                                      render={({ field }) => {
+                                          return (
+                                          <FormItem
+                                              key={item.id}
+                                              className="flex flex-row items-start space-x-3 space-y-0"
+                                          >
+                                              <FormControl>
+                                              <Checkbox
+                                                  checked={field.value?.includes(item.id)}
+                                                  onCheckedChange={(checked) => {
+                                                  return checked
+                                                      ? field.onChange([...(field.value || []), item.id])
+                                                      : field.onChange(
+                                                          field.value?.filter(
+                                                          (value) => value !== item.id
+                                                          )
+                                                      )
+                                                  }}
+                                              />
+                                              </FormControl>
+                                              <FormLabel className="font-normal">
+                                              {item.name}
+                                              </FormLabel>
+                                          </FormItem>
+                                          )
+                                      }}
+                                      />
                                   ))}
-                                  </SelectContent>
-                              </Select>
-                              <FormMessage />
+                                  </div>
+                                  <FormMessage />
                               </FormItem>
                           )}
-                      />
+                        />
                         <FormField
                           control={form.control}
                           name="content"
@@ -206,9 +222,9 @@ export default function FreestyleSchedulePage() {
                           />
                       </div>
 
-                        <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
+                        <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={selectedContactsCount === 0}>
                           <Send className="mr-2 h-4 w-4" />
-                          Schedule Message
+                          Schedule Message{selectedContactsCount > 0 ? ` for ${selectedContactsCount} contact(s)` : ''}
                       </Button>
                   </form>
               </Form>

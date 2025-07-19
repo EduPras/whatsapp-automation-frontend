@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { useState, useEffect, useMemo } from 'react';
-import { PlusCircle, CalendarClock, Send, MoreHorizontal, Pencil, Trash2, Search } from 'lucide-react';
+import { PlusCircle, CalendarClock, Send, MoreHorizontal, Pencil, Trash2, Search, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { ScheduledMessage, Contact, Template } from '@/lib/types';
 import { Badge } from "@/components/ui/badge";
@@ -36,10 +36,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { Loader2 } from 'lucide-react';
 
-
 const initialContacts: Contact[] = [
   { id: '1', name: 'Alice Johnson', email: 'alice@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
   { id: '2', name: 'Bob Williams', email: 'bob@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
+  { id: '3', name: 'Charlie Brown', email: 'charlie@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
 ];
 
 const initialTemplates: Template[] = [
@@ -50,14 +50,14 @@ const initialTemplates: Template[] = [
 const initialScheduledMessages: ScheduledMessage[] = [
   {
     id: '1',
-    contact: initialContacts[0],
+    contacts: [initialContacts[0]],
     content: 'Hi Alice, just a reminder about our meeting tomorrow at 10 AM. See you then!',
     scheduledAt: new Date(new Date().getTime() + 24 * 60 * 60 * 1000), // Tomorrow
     status: 'scheduled',
   },
   {
     id: '2',
-    contact: initialContacts[1],
+    contacts: [initialContacts[1]],
     content: 'Hey Bob, did you get a chance to look at the proposal? Let me know your thoughts.',
     scheduledAt: new Date(new Date().getTime() + 2 * 24 * 60 * 60 * 1000), // In 2 days
     status: 'scheduled',
@@ -65,11 +65,18 @@ const initialScheduledMessages: ScheduledMessage[] = [
   },
   {
     id: '3',
-    contact: initialContacts[0],
+    contacts: [initialContacts[0]],
     content: 'Welcome aboard, Alice! We are thrilled to have you.',
     scheduledAt: new Date(new Date().getTime() - 24 * 60 * 60 * 1000), // Yesterday
     status: 'sent',
     templateId: '1',
+  },
+   {
+    id: '4',
+    contacts: [initialContacts[0], initialContacts[1], initialContacts[2]],
+    content: 'Hi team, project update meeting is scheduled for Friday. Please confirm your availability.',
+    scheduledAt: new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000), // In 3 days
+    status: 'scheduled',
   },
 ];
 
@@ -109,8 +116,7 @@ export default function ScheduledMessagesPage() {
 
     const lowercasedFilter = searchTerm.toLowerCase();
     return messages.filter(msg =>
-      msg.contact.name.toLowerCase().includes(lowercasedFilter) ||
-      msg.contact.email.toLowerCase().includes(lowercasedFilter) ||
+      msg.contacts.some(c => c.name.toLowerCase().includes(lowercasedFilter) || c.email.toLowerCase().includes(lowercasedFilter)) ||
       msg.content.toLowerCase().includes(lowercasedFilter)
     );
   }, [messages, searchTerm]);
@@ -152,7 +158,7 @@ export default function ScheduledMessagesPage() {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Contact</TableHead>
+                            <TableHead>Contact(s)</TableHead>
                             <TableHead>Content</TableHead>
                             <TableHead className="hidden md:table-cell">Scheduled At</TableHead>
                             <TableHead className="hidden md:table-cell">Template</TableHead>
@@ -164,14 +170,28 @@ export default function ScheduledMessagesPage() {
                             <TableRow key={msg.id}>
                                 <TableCell>
                                     <div className="flex items-center gap-3">
-                                        <Avatar className="h-9 w-9">
-                                            <AvatarImage src={msg.contact.avatarUrl} alt={msg.contact.name} data-ai-hint="person avatar" />
-                                            <AvatarFallback>{msg.contact.name.charAt(0)}</AvatarFallback>
-                                        </Avatar>
-                                        <div>
-                                            <div className="font-medium">{msg.contact.name}</div>
-                                            <div className="text-sm text-muted-foreground hidden md:block">{msg.contact.email}</div>
-                                        </div>
+                                      {msg.contacts.length === 1 ? (
+                                        <>
+                                          <Avatar className="h-9 w-9">
+                                              <AvatarImage src={msg.contacts[0].avatarUrl} alt={msg.contacts[0].name} data-ai-hint="person avatar" />
+                                              <AvatarFallback>{msg.contacts[0].name.charAt(0)}</AvatarFallback>
+                                          </Avatar>
+                                          <div>
+                                              <div className="font-medium">{msg.contacts[0].name}</div>
+                                              <div className="text-sm text-muted-foreground hidden md:block">{msg.contacts[0].email}</div>
+                                          </div>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Avatar className="h-9 w-9">
+                                            <AvatarFallback><Users className="h-5 w-5"/></AvatarFallback>
+                                          </Avatar>
+                                          <div>
+                                              <div className="font-medium">Group Message</div>
+                                              <div className="text-sm text-muted-foreground">{msg.contacts.length} recipients</div>
+                                          </div>
+                                        </>
+                                      )}
                                     </div>
                                 </TableCell>
                                 <TableCell>
@@ -225,7 +245,7 @@ export default function ScheduledMessagesPage() {
                 <Table>
                      <TableHeader>
                         <TableRow>
-                            <TableHead>Contact</TableHead>
+                            <TableHead>Contact(s)</TableHead>
                             <TableHead>Content</TableHead>
                             <TableHead className="hidden md:table-cell">Sent At</TableHead>
                             <TableHead className="hidden md:table-cell">Template</TableHead>
@@ -236,14 +256,28 @@ export default function ScheduledMessagesPage() {
                             <TableRow key={msg.id}>
                                 <TableCell>
                                     <div className="flex items-center gap-3">
-                                        <Avatar className="h-9 w-9">
-                                            <AvatarImage src={msg.contact.avatarUrl} alt={msg.contact.name} data-ai-hint="person avatar" />
-                                            <AvatarFallback>{msg.contact.name.charAt(0)}</AvatarFallback>
-                                        </Avatar>
-                                        <div>
-                                            <div className="font-medium">{msg.contact.name}</div>
-                                            <div className="text-sm text-muted-foreground hidden md:block">{msg.contact.email}</div>
-                                        </div>
+                                        {msg.contacts.length === 1 ? (
+                                        <>
+                                          <Avatar className="h-9 w-9">
+                                              <AvatarImage src={msg.contacts[0].avatarUrl} alt={msg.contacts[0].name} data-ai-hint="person avatar" />
+                                              <AvatarFallback>{msg.contacts[0].name.charAt(0)}</AvatarFallback>
+                                          </Avatar>
+                                          <div>
+                                              <div className="font-medium">{msg.contacts[0].name}</div>
+                                              <div className="text-sm text-muted-foreground hidden md:block">{msg.contacts[0].email}</div>
+                                          </div>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Avatar className="h-9 w-9">
+                                            <AvatarFallback><Users className="h-5 w-5"/></AvatarFallback>
+                                          </Avatar>
+                                          <div>
+                                              <div className="font-medium">Group Message</div>
+                                              <div className="text-sm text-muted-foreground">{msg.contacts.length} recipients</div>
+                                          </div>
+                                        </>
+                                      )}
                                     </div>
                                 </TableCell>
                                 <TableCell>

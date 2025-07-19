@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { CalendarIcon, Clock, Send, Sparkles, Loader2, UserPlus, ArrowLeft } from 'lucide-react';
+import { CalendarIcon, Clock, Send, Sparkles, Loader2, ArrowLeft, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -15,13 +15,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -34,7 +27,6 @@ import type { Contact, ScheduledMessage } from '@/lib/types';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
-// Mock data - in a real app, this would come from a database/API
 const initialContacts: Contact[] = [
   { id: '1', name: 'Alice Johnson', email: 'alice@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
   { id: '2', name: 'Bob Williams', email: 'bob@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
@@ -44,24 +36,31 @@ const initialContacts: Contact[] = [
 const initialScheduledMessages: ScheduledMessage[] = [
   {
     id: '1',
-    contact: initialContacts[0],
+    contacts: [initialContacts[0]],
     content: 'Hi Alice, just a reminder about our meeting tomorrow at 10 AM. See you then!',
     scheduledAt: new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
     status: 'scheduled',
   },
   {
     id: '2',
-    contact: initialContacts[1],
+    contacts: [initialContacts[1]],
     content: 'Hey Bob, did you get a chance to look at the proposal? Let me know your thoughts.',
     scheduledAt: new Date(new Date().getTime() + 2 * 24 * 60 * 60 * 1000),
     status: 'scheduled',
     templateId: '2',
   },
+  {
+    id: '4',
+    contacts: [initialContacts[0], initialContacts[1], initialContacts[2]],
+    content: 'Hi team, project update meeting is scheduled for Friday. Please confirm your availability.',
+    scheduledAt: new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000),
+    status: 'scheduled',
+  },
 ];
 
 
 const formSchema = z.object({
-  contactId: z.string().min(1, 'Please select a contact.'),
+  contactIds: z.array(z.string()).nonempty(),
   content: z.string().min(10, 'Content must be at least 10 characters long.'),
   scheduledAtDate: z.date({ required_error: "Please select a date." }),
   scheduledAtTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:MM)."),
@@ -70,7 +69,6 @@ const formSchema = z.object({
 export default function EditScheduledMessagePage() {
   const params = useParams();
   const id = params.id as string;
-  const [contacts] = useState<Contact[]>(initialContacts);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [message, setMessage] = useState<ScheduledMessage | null>(null);
   const { toast } = useToast();
@@ -78,7 +76,7 @@ export default function EditScheduledMessagePage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      contactId: '',
+      contactIds: [],
       content: '',
       scheduledAtTime: '09:00',
     },
@@ -90,7 +88,7 @@ export default function EditScheduledMessagePage() {
         if (messageToEdit) {
             setMessage(messageToEdit);
             form.reset({
-                contactId: messageToEdit.contact.id,
+                contactIds: messageToEdit.contacts.map(c => c.id),
                 content: messageToEdit.content,
                 scheduledAtDate: messageToEdit.scheduledAt,
                 scheduledAtTime: format(messageToEdit.scheduledAt, 'HH:mm'),
@@ -98,8 +96,6 @@ export default function EditScheduledMessagePage() {
         }
     }
   }, [id, form]);
-
-  const contentValue = form.watch('content');
 
   const handleAiEnrich = async () => {
     toast({ title: "AI enrichment coming soon!" });
@@ -109,7 +105,7 @@ export default function EditScheduledMessagePage() {
     console.log(values);
     toast({
       title: "Message Updated!",
-      description: `Your message to ${contacts.find(c => c.id === values.contactId)?.name} has been updated.`,
+      description: `Your message has been updated.`,
     });
   };
 
@@ -121,6 +117,8 @@ export default function EditScheduledMessagePage() {
         </div>
     );
   }
+
+  const isGroupMessage = message.contacts.length > 1;
 
   return (
     <div>
@@ -148,30 +146,25 @@ export default function EditScheduledMessagePage() {
             <CardContent>
                  <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                        <FormField
-                            control={form.control}
-                            name="contactId"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Contact</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value} disabled>
-                                    <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select a contact" />
-                                    </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                    {contacts.map((contact) => (
-                                        <SelectItem key={contact.id} value={contact.id}>
-                                        {contact.name}
-                                        </SelectItem>
-                                    ))}
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                        <FormItem>
+                            <FormLabel>Contact(s)</FormLabel>
+                            <FormControl>
+                                <div className="p-3 border rounded-md bg-secondary/50 flex items-center gap-2">
+                                    {isGroupMessage ? (
+                                        <>
+                                            <Users className="h-5 w-5 text-muted-foreground"/>
+                                            <span className="text-sm font-medium">Group Message ({message.contacts.length} recipients)</span>
+                                        </>
+                                    ) : (
+                                        <span className="text-sm font-medium">{message.contacts[0]?.name || 'N/A'}</span>
+                                    )}
+                                </div>
+                            </FormControl>
+                            <FormDescription>
+                                {isGroupMessage ? "Editing recipients for a group message is not currently supported." : ""}
+                            </FormDescription>
+                        </FormItem>
+
                          <FormField
                             control={form.control}
                             name="content"
