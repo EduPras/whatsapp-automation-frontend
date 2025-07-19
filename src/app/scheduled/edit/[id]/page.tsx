@@ -114,7 +114,7 @@ export default function EditScheduledMessagePage() {
 
   if (!message) {
     return (
-        <div className="container mx-auto px-4 py-8 text-center">
+        <div className="flex justify-center items-center h-full">
             <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
             <p className="mt-4 text-muted-foreground">Loading message...</p>
         </div>
