@@ -44,7 +44,7 @@ const initialTemplates: Template[] = [
 const formSchema = z.object({
   contactIds: z.array(z.string()).nonempty({ message: 'Please select at least one contact.' }),
   scheduledAtDate: z.date({ required_error: "Please select a date." }),
-  scheduledAtTime: z.string().regex(/^([01]\\d|2[0-3]):([0-5]\\d)$/, "Invalid time format (HH:MM)."),
+  scheduledAtTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:MM)."),
 });
 
 export default function ScheduleFromTemplatePage() {
@@ -59,13 +59,6 @@ export default function ScheduleFromTemplatePage() {
   const tToast = useTranslations('Toast');
   const tGeneral = useTranslations('General');
 
-  useEffect(() => {
-    if (templateId) {
-      const foundTemplate = initialTemplates.find(t => t.id === templateId);
-      setTemplate(foundTemplate || null);
-    }
-  }, [templateId]);
-  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -73,6 +66,14 @@ export default function ScheduleFromTemplatePage() {
       scheduledAtTime: '09:00',
     },
   });
+
+  useEffect(() => {
+    if (templateId) {
+      const foundTemplate = initialTemplates.find(t => t.id === templateId);
+      setTemplate(foundTemplate || null);
+    }
+  }, [templateId]);
+  
   
   const selectedContactsCount = form.watch('contactIds').length;
 
@@ -85,7 +86,7 @@ export default function ScheduleFromTemplatePage() {
     const validation = z.object({
         contactIds: z.array(z.string()).nonempty({ message: tForm('selectContactsError') }),
         scheduledAtDate: z.date({ required_error: tForm('dateError') }),
-        scheduledAtTime: z.string().regex(/^([01]\\d|2[0-3]):([0-5]\\d)$/, tForm('timeError')),
+        scheduledAtTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, tForm('timeError')),
     }).safeParse(values);
 
     if (!validation.success) {
