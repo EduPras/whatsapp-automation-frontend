@@ -1,9 +1,13 @@
+
+"use client";
+
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import type { ScheduledMessage } from '@/lib/types';
 import { formatDistanceToNow, format } from 'date-fns';
-import { Calendar, Clock, CheckCircle, AlertCircle, Send, MoreVertical, Pencil, Trash2 } from 'lucide-react';
+import { Calendar, Clock, CheckCircle, AlertCircle, Send, MoreVertical, Pencil, Trash2, Loader2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,9 +28,22 @@ const statusConfig = {
     failed: { icon: AlertCircle, color: "bg-red-500", label: "Failed" },
 };
 
-
 export function ScheduledMessageCard({ message, onDelete }: ScheduledMessageCardProps) {
-    const { icon: StatusIcon, color, label } = statusConfig[message.status];
+  const { icon: StatusIcon } = statusConfig[message.status];
+  const [formattedDate, setFormattedDate] = useState('');
+  const [relativeDate, setRelativeDate] = useState('');
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    // This ensures the code runs only on the client, after hydration
+    setIsClient(true);
+    setFormattedDate(format(message.scheduledAt, 'PPP'));
+    const relative = message.status === 'scheduled'
+      ? `Sends in ${formatDistanceToNow(message.scheduledAt)}`
+      : `Sent ${formatDistanceToNow(message.scheduledAt, { addSuffix: true })}`;
+    setRelativeDate(relative);
+  }, [message.scheduledAt, message.status]);
+
   return (
     <Card className="flex flex-col transition-all hover:shadow-lg">
       <CardHeader>
@@ -70,16 +87,12 @@ export function ScheduledMessageCard({ message, onDelete }: ScheduledMessageCard
       <CardFooter className="flex flex-col items-start gap-2 text-sm text-muted-foreground pt-4">
         <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4" />
-            <span>{format(message.scheduledAt, 'PPP')}</span>
+            {isClient ? <span>{formattedDate}</span> : <Loader2 className="h-4 w-4 animate-spin" />}
         </div>
         <div className="w-full flex justify-between items-center">
             <div className="flex items-center gap-2">
                 <StatusIcon className={`h-4 w-4 ${message.status === 'scheduled' ? 'text-primary' : message.status === 'sent' ? 'text-green-500' : 'text-destructive'}`} />
-                <span>
-                {message.status === 'scheduled' 
-                    ? `Sends in ${formatDistanceToNow(message.scheduledAt)}`
-                    : `Sent ${formatDistanceToNow(message.scheduledAt, { addSuffix: true })}`}
-                </span>
+                {isClient ? <span>{relativeDate}</span> : <Loader2 className="h-4 w-4 animate-spin" />}
             </div>
             {message.templateId && <Badge variant="outline">Template</Badge>}
         </div>
