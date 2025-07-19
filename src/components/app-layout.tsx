@@ -3,7 +3,7 @@
 
 import { useTranslations } from 'next-intl';
 import '../app/globals.css';
-import { CalendarClock, Inbox, MessageSquareText, FolderPlus, Folder, Trash2, CalendarCheck, Settings, LogOut, PanelLeft, User } from "lucide-react";
+import { CalendarClock, Inbox, MessageSquareText, FolderPlus, Folder, Trash2, CalendarCheck, Settings, LogOut, PanelLeft, User, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Toaster } from "@/components/ui/toaster";
 import {
@@ -81,18 +81,23 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const [isFolderFormOpen, setIsFolderFormOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
   const [folderToDelete, setFolderToDelete] = useState<FolderType | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleSaveFolder = () => {
+  const handleSaveFolder = async () => {
     if (newFolderName.trim()) {
-      addFolder(newFolderName.trim());
+      setIsSaving(true);
+      await addFolder(newFolderName.trim());
+      setIsSaving(false);
       setNewFolderName('');
       setIsFolderFormOpen(false);
     }
   };
 
-  const handleDeleteFolder = () => {
+  const handleDeleteFolder = async () => {
     if (folderToDelete) {
-      deleteFolder(folderToDelete.id);
+      setIsSaving(true);
+      await deleteFolder(folderToDelete.id);
+      setIsSaving(false);
       setFolderToDelete(null);
     }
   };
@@ -107,7 +112,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                   <MessageSquareText className="h-6 w-6 text-primary" />
                   <span className="font-semibold font-headline">{t('appName')}</span>
                </div>
-                <div className="hidden xl:flex">
+                <div className="flex">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -242,11 +247,15 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               value={newFolderName}
               onChange={(e) => setNewFolderName(e.target.value)}
               autoFocus
+              disabled={isSaving}
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsFolderFormOpen(false)}>{tButtons('cancel')}</Button>
-            <Button onClick={handleSaveFolder}>{tButtons('save')}</Button>
+            <Button variant="outline" onClick={() => setIsFolderFormOpen(false)} disabled={isSaving}>{tButtons('cancel')}</Button>
+            <Button onClick={handleSaveFolder} disabled={isSaving}>
+              {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {tButtons('save')}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -260,8 +269,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setFolderToDelete(null)}>{tButtons('cancel')}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteFolder} className="bg-destructive hover:bg-destructive/90">
+            <AlertDialogCancel onClick={() => setFolderToDelete(null)} disabled={isSaving}>{tButtons('cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteFolder} className="bg-destructive hover:bg-destructive/90" disabled={isSaving}>
+              {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {t('deleteFolderAction')}
             </AlertDialogAction>
           </AlertDialogFooter>

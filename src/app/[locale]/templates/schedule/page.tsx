@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -31,6 +31,7 @@ import { useData } from '@/lib/data-provider';
 
 export default function ScheduleFromTemplatePage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const templateId = searchParams.get('templateId');
   const t = useTranslations('ScheduleFromTemplatePage');
   const tForm = useTranslations('ScheduleForm');
@@ -41,6 +42,7 @@ export default function ScheduleFromTemplatePage() {
   const [template, setTemplate] = useState<Template | null>(null);
   const { toast } = useToast();
   const [contactSearchTerm, setContactSearchTerm] = useState('');
+  const [isScheduling, setIsScheduling] = useState(false);
 
   const formSchema = z.object({
     contactIds: z.array(z.string()).nonempty({ message: tForm('selectContactsError') }),
@@ -70,8 +72,9 @@ export default function ScheduleFromTemplatePage() {
     contact.name.toLowerCase().includes(contactSearchTerm.toLowerCase())
   );
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!template) return;
+    setIsScheduling(true);
 
     const { scheduledAtDate, scheduledAtTime, contactIds } = values;
     const [hours, minutes] = scheduledAtTime.replace(/\s/g, '').split(':').map(Number);
@@ -85,17 +88,19 @@ export default function ScheduleFromTemplatePage() {
       templateId: template.id,
     }
 
-    scheduleMessage(messageToSchedule);
+    await scheduleMessage(messageToSchedule);
+    setIsScheduling(false);
     
     toast({
       title: tToast('messageScheduled'),
       description: tToast('messageScheduledDescription', { count: values.contactIds.length }),
     });
+    router.push('/scheduled');
   };
 
   if (!template) {
     return (
-        <div className="text-center">
+        <div className="flex justify-center items-center h-full">
             <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
             <p className="mt-4 text-muted-foreground">{tGeneral('loading')}</p>
         </div>
@@ -250,8 +255,8 @@ export default function ScheduleFromTemplatePage() {
                             />
                         </div>
 
-                          <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={selectedContactsCount === 0}>
-                            <Send className="mr-2 h-4 w-4" />
+                          <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={selectedContactsCount === 0 || isScheduling}>
+                            {isScheduling ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                             {t('scheduleForContacts', {count: selectedContactsCount})}
                         </Button>
                     </form>

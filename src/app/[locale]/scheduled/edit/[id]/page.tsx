@@ -44,6 +44,7 @@ export default function EditScheduledMessagePage() {
   const tGeneral = useTranslations('General');
   
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<ScheduledMessage | null>(null);
   const { contacts, getScheduledMessageById, updateScheduledMessage } = useData();
   const { toast } = useToast();
@@ -79,8 +80,8 @@ export default function EditScheduledMessagePage() {
             form.reset({
                 contactIds: messageToEdit.contacts.map(c => c.id),
                 content: messageToEdit.content,
-                scheduledAtDate: messageToEdit.scheduledAt,
-                scheduledAtTime: format(messageToEdit.scheduledAt, 'HH:mm'),
+                scheduledAtDate: new Date(messageToEdit.scheduledAt),
+                scheduledAtTime: format(new Date(messageToEdit.scheduledAt), 'HH:mm'),
             });
         }
     }
@@ -90,7 +91,8 @@ export default function EditScheduledMessagePage() {
     toast({ title: "AI enrichment coming soon!" });
   };
   
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setIsSaving(true);
     const { scheduledAtDate, scheduledAtTime, contactIds, content } = values;
     const [hours, minutes] = scheduledAtTime.replace(/\s/g, '').split(':').map(Number);
     const scheduledAt = new Date(scheduledAtDate);
@@ -103,7 +105,8 @@ export default function EditScheduledMessagePage() {
       templateId: message?.templateId,
     }
 
-    updateScheduledMessage(id, messageToUpdate);
+    await updateScheduledMessage(id, messageToUpdate);
+    setIsSaving(false);
 
     toast({
       title: tToast('messageUpdated'),
@@ -214,7 +217,7 @@ export default function EditScheduledMessagePage() {
                                 <FormItem>
                                 <div className="flex justify-between items-center">
                                     <FormLabel>{tContent('contentLabel')}</FormLabel>
-                                    <Button type="button" variant="ghost" size="sm" onClick={handleAiEnrich} disabled={isAiLoading}>
+                                    <Button type="button" variant="ghost" size="sm" onClick={handleAiEnrich} disabled={isAiLoading || isSaving}>
                                     {isAiLoading ? (
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                     ) : (
@@ -294,8 +297,8 @@ export default function EditScheduledMessagePage() {
                             />
                         </div>
 
-                         <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={selectedContactsCount === 0}>
-                            <Send className="mr-2 h-4 w-4" />
+                         <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={selectedContactsCount === 0 || isSaving}>
+                            {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                             {t('updateMessage')}
                         </Button>
                     </form>
@@ -305,4 +308,3 @@ export default function EditScheduledMessagePage() {
     </div>
   );
 }
-

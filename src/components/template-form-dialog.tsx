@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import type { Template, Folder } from '@/lib/types';
+import type { Template } from '@/lib/types';
 import { enrichTemplateContent } from '@/ai/flows/template-content-enrichment';
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from 'next-intl';
@@ -43,7 +43,6 @@ interface TemplateFormDialogProps {
   onOpenChange: (isOpen: boolean) => void;
   template: Template | null;
   onClose: () => void;
-  folders: Folder[];
   activeFolder: string;
 }
 
@@ -58,16 +57,16 @@ export function TemplateFormDialog({
   onOpenChange,
   template,
   onClose,
-  folders,
   activeFolder,
 }: TemplateFormDialogProps) {
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
   const t = useTranslations('TemplateFormDialog');
   const tButtons = useTranslations('Buttons');
   const tSidebar = useTranslations('Sidebar');
   const tToast = useTranslations('Toast');
-  const { saveTemplate } = useData();
+  const { saveTemplate, folders } = useData();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -90,7 +89,7 @@ export function TemplateFormDialog({
       form.reset({
         title: template?.title || '',
         content: template?.content || '',
-        folder: template?.folder || (activeFolder !== 'All' ? activeFolder : (folders[0]?.name || ''))
+        folder: template?.folder || (activeFolder !== 'All Templates' ? activeFolder : (folders[0]?.name || ''))
       });
     }
   }, [isOpen, template, form, activeFolder, folders]);
@@ -121,7 +120,7 @@ export function TemplateFormDialog({
     }
   };
   
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const validation = z.object({
         title: z.string().min(3, t('titleError')),
         content: z.string().min(10, t('contentError')),
@@ -135,7 +134,9 @@ export function TemplateFormDialog({
         return;
     }
     
-    saveTemplate(values, template?.id);
+    setIsSaving(true);
+    await saveTemplate(values, template?.id);
+    setIsSaving(false);
     onClose();
   };
 
@@ -201,7 +202,7 @@ export function TemplateFormDialog({
                     <FormItem className="flex flex-col flex-grow">
                       <div className="flex justify-between items-center">
                         <FormLabel>{t('contentLabel')}</FormLabel>
-                        <Button type="button" variant="ghost" size="sm" onClick={handleAiEnrich} disabled={isAiLoading}>
+                        <Button type="button" variant="ghost" size="sm" onClick={handleAiEnrich} disabled={isAiLoading || isSaving}>
                           {isAiLoading ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           ) : (
@@ -223,10 +224,13 @@ export function TemplateFormDialog({
                 />
               </div>
               <DialogFooter className="pt-4 !mt-auto">
-                <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving}>
                   {tButtons('cancel')}
                 </Button>
-                <Button type="submit" className="bg-accent hover:bg-accent/90 text-accent-foreground">{t('saveTemplate')}</Button>
+                <Button type="submit" className="bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isSaving}>
+                    {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {t('saveTemplate')}
+                </Button>
               </DialogFooter>
             </form>
           </Form>

@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { PlusCircle, MessageSquareText } from 'lucide-react';
+import { PlusCircle, MessageSquareText, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TemplateCard } from '@/components/template-card';
 import { TemplateFormDialog } from '@/components/template-form-dialog';
@@ -29,7 +29,7 @@ export default function TemplatesPage() {
   const tSidebar = useTranslations('Sidebar');
   const tButtons = useTranslations('Buttons');
   
-  const { folders, templates, deleteTemplate } = useData();
+  const { folders, templates, deleteTemplate, isLoading } = useData();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [templateToDelete, setTemplateToDelete] = useState<string | null>(null);
@@ -57,9 +57,9 @@ export default function TemplatesPage() {
     setTemplateToDelete(templateId);
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (templateToDelete) {
-      deleteTemplate(templateToDelete);
+      await deleteTemplate(templateToDelete);
       setTemplateToDelete(null);
     }
   };
@@ -67,6 +67,14 @@ export default function TemplatesPage() {
   const filteredTemplates = activeFolder === 'All Templates'
     ? templates
     : templates.filter(t => t.folder === activeFolder);
+    
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   return (
       <div>
@@ -112,7 +120,6 @@ export default function TemplatesPage() {
         onOpenChange={setIsFormOpen}
         template={selectedTemplate}
         onClose={() => setIsFormOpen(false)}
-        folders={folders}
         activeFolder={activeFolder}
       />
 

@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -33,7 +34,9 @@ import { useData } from '@/lib/data-provider';
 export default function FreestyleSchedulePage() {
   const { contacts, scheduleMessage } = useData();
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [isScheduling, setIsScheduling] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
   const [contactSearchTerm, setContactSearchTerm] = useState('');
   const t = useTranslations('FreestyleMessagePage');
   const tForm = useTranslations('ScheduleForm');
@@ -67,7 +70,8 @@ export default function FreestyleSchedulePage() {
     toast({ title: "AI enrichment coming soon!" });
   };
   
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setIsScheduling(true);
     const { scheduledAtDate, scheduledAtTime, contactIds, content } = values;
     const [hours, minutes] = scheduledAtTime.replace(/\s/g, '').split(':').map(Number);
     const scheduledAt = new Date(scheduledAtDate);
@@ -79,13 +83,14 @@ export default function FreestyleSchedulePage() {
       scheduledAt,
     }
 
-    scheduleMessage(messageToSchedule);
+    await scheduleMessage(messageToSchedule);
+    setIsScheduling(false);
 
     toast({
       title: tToast('messageScheduled'),
       description: tToast('messageScheduledDescription', { count: values.contactIds.length }),
     });
-    form.reset();
+    router.push('/scheduled');
   };
 
   return (
@@ -180,7 +185,7 @@ export default function FreestyleSchedulePage() {
                                 <FormItem>
                                 <div className="flex justify-between items-center">
                                     <FormLabel>{tContent('contentLabel')}</FormLabel>
-                                    <Button type="button" variant="ghost" size="sm" onClick={handleAiEnrich} disabled={isAiLoading}>
+                                    <Button type="button" variant="ghost" size="sm" onClick={handleAiEnrich} disabled={isAiLoading || isScheduling}>
                                     {isAiLoading ? (
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                     ) : (
@@ -260,8 +265,8 @@ export default function FreestyleSchedulePage() {
                             />
                         </div>
 
-                          <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={selectedContactsCount === 0}>
-                            <Send className="mr-2 h-4 w-4" />
+                          <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={selectedContactsCount === 0 || isScheduling}>
+                            {isScheduling ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                             {selectedContactsCount > 0 ? t('scheduleForContacts', {count: selectedContactsCount}) : t('scheduleMessage')}
                         </Button>
                     </form>
@@ -271,4 +276,3 @@ export default function FreestyleSchedulePage() {
       </div>
   );
 }
-

@@ -47,19 +47,19 @@ const FormattedDate = ({ date }: { date: Date }) => {
         return <Loader2 className="h-4 w-4 animate-spin" />;
     }
 
-    return <>{format(date, 'PPP p')}</>;
+    return <>{format(new Date(date), 'PPP p')}</>;
 }
 
 export default function ScheduledMessagesPage() {
-  const { scheduledMessages, deleteScheduledMessage, templates } = useData();
+  const { scheduledMessages, deleteScheduledMessage, templates, isLoading } = useData();
   const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const t = useTranslations('ScheduledPage');
   const tButtons = useTranslations('Buttons');
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (messageToDelete) {
-      deleteScheduledMessage(messageToDelete);
+      await deleteScheduledMessage(messageToDelete);
       setMessageToDelete(null);
     }
   };
@@ -82,6 +82,14 @@ export default function ScheduledMessagesPage() {
 
   const upcomingMessages = filteredMessages.filter(m => m.status === 'scheduled');
   const sentMessages = filteredMessages.filter(m => m.status === 'sent');
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   return (
       <div>
