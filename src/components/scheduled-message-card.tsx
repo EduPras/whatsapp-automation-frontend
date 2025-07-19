@@ -67,7 +67,7 @@ export function ScheduledMessageCard({ message, onDelete }: ScheduledMessageCard
       <CardContent className="flex-grow">
         <p className="text-sm text-muted-foreground line-clamp-4">{message.content}</p>
       </CardContent>
-      <CardFooter className="flex flex-col items-start gap-2 text-sm text-muted-foreground">
+      <CardFooter className="flex flex-col items-start gap-2 text-sm text-muted-foreground pt-4">
         <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4" />
             <span>{format(message.scheduledAt, 'PPP')}</span>

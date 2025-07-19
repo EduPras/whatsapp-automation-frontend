@@ -67,7 +67,7 @@ export default function TemplatesPage() {
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [templateToDelete, setTemplateToDelete] = useState<string | null>(null);
 
-  const activeFolder = folderParam || 'All';
+  const activeFolder = folderParam || 'All Templates';
 
   const handleCreateNew = () => {
     setSelectedTemplate(null);
@@ -106,15 +106,15 @@ export default function TemplatesPage() {
     setIsFormOpen(false);
   };
 
-  const filteredTemplates = activeFolder === 'All'
+  const filteredTemplates = activeFolder === 'All Templates'
     ? templates
     : templates.filter(t => t.folder === activeFolder);
 
   return (
-      <div className="p-8">
+      <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold font-headline tracking-tight">
-            {activeFolder} Templates
+            {activeFolder}
           </h1>
           <Button onClick={handleCreateNew} className="bg-accent hover:bg-accent/90 text-accent-foreground">
             <PlusCircle className="mr-2 h-4 w-4" />
