@@ -1,6 +1,5 @@
-
 import Link from 'next/link';
-import { LogOut, Settings } from 'lucide-react';
+import { LogOut, Settings, Search } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -12,6 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from './ui/sidebar';
+import { Input } from './ui/input';
 
 export function Header() {
   return (
@@ -20,7 +20,12 @@ export function Header() {
         <div className="md:hidden">
             <SidebarTrigger />
         </div>
-        <div className="flex-1"></div>
+        <div className="flex-1 flex justify-center px-4">
+            <div className="w-full max-w-lg relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input placeholder="Search..." className="pl-10" />
+            </div>
+        </div>
         <div className="flex items-center space-x-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
