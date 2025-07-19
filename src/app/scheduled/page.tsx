@@ -3,10 +3,9 @@
 
 import Link from "next/link";
 import { useState } from 'react';
-import { PlusCircle, CalendarClock, Send } from 'lucide-react';
+import { PlusCircle, CalendarClock, Send, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ScheduledMessageCard } from '@/components/scheduled-message-card';
-import type { ScheduledMessage, Contact } from '@/lib/types';
+import type { ScheduledMessage, Contact, Template } from '@/lib/types';
 import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
@@ -17,11 +16,32 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { format } from "date-fns";
 
 const initialContacts: Contact[] = [
   { id: '1', name: 'Alice Johnson', email: 'alice@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
   { id: '2', name: 'Bob Williams', email: 'bob@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
+];
+
+const initialTemplates: Template[] = [
+    { id: '1', title: 'Welcome Message', content: 'Hi {{client_name}}, welcome!', createdAt: new Date(), folder: 'General' },
+    { id: '2', title: 'Appointment Reminder', content: 'Reminder for {{appointment_time}}.', createdAt: new Date(), folder: 'Appointment Reminders' }
 ];
 
 const initialScheduledMessages: ScheduledMessage[] = [
@@ -61,6 +81,12 @@ export default function ScheduledMessagesPage() {
     }
   };
 
+  const getTemplateName = (templateId?: string) => {
+      if (!templateId) return <Badge variant="secondary">Manual</Badge>;
+      const template = initialTemplates.find(t => t.id === templateId);
+      return template ? <Badge variant="outline">{template.title}</Badge> : <Badge variant="secondary">Manual</Badge>;
+  }
+
   const upcomingMessages = messages.filter(m => m.status === 'scheduled');
   const sentMessages = messages.filter(m => m.status === 'sent');
 
@@ -83,8 +109,62 @@ export default function ScheduledMessagesPage() {
             Upcoming <Badge variant="secondary" className="ml-2">{upcomingMessages.length}</Badge>
         </h2>
         {upcomingMessages.length > 0 ? (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {upcomingMessages.map(msg => <ScheduledMessageCard key={msg.id} message={msg} onDelete={() => setMessageToDelete(msg.id)} />)}
+            <div className="rounded-lg border">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Contact</TableHead>
+                            <TableHead>Content</TableHead>
+                            <TableHead>Scheduled At</TableHead>
+                            <TableHead>Template</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {upcomingMessages.map(msg => (
+                            <TableRow key={msg.id}>
+                                <TableCell>
+                                    <div className="flex items-center gap-3">
+                                        <Avatar className="h-9 w-9">
+                                            <AvatarImage src={msg.contact.avatarUrl} alt={msg.contact.name} data-ai-hint="person avatar" />
+                                            <AvatarFallback>{msg.contact.name.charAt(0)}</AvatarFallback>
+                                        </Avatar>
+                                        <div>
+                                            <div className="font-medium">{msg.contact.name}</div>
+                                            <div className="text-sm text-muted-foreground">{msg.contact.email}</div>
+                                        </div>
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    <p className="max-w-xs truncate text-sm text-muted-foreground">{msg.content}</p>
+                                </TableCell>
+                                <TableCell>{format(msg.scheduledAt, 'PPP p')}</TableCell>
+                                <TableCell>{getTemplateName(msg.templateId)}</TableCell>
+                                <TableCell className="text-right">
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                                            <MoreHorizontal className="h-4 w-4" />
+                                        </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end">
+                                        <DropdownMenuItem asChild>
+                                            <Link href={`/scheduled/edit/${msg.id}`}>
+                                            <Pencil className="mr-2 h-4 w-4" />
+                                            Edit
+                                            </Link>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => setMessageToDelete(msg.id)} className="text-destructive">
+                                            <Trash2 className="mr-2 h-4 w-4" />
+                                            Delete
+                                        </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
             </div>
         ) : (
              <div className="text-center py-16 border-2 border-dashed rounded-lg">
@@ -102,8 +182,40 @@ export default function ScheduledMessagesPage() {
             Sent <Badge variant="secondary" className="ml-2">{sentMessages.length}</Badge>
         </h2>
         {sentMessages.length > 0 ? (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {sentMessages.map(msg => <ScheduledMessageCard key={msg.id} message={msg} onDelete={() => {}} />)}
+            <div className="rounded-lg border">
+                <Table>
+                     <TableHeader>
+                        <TableRow>
+                            <TableHead>Contact</TableHead>
+                            <TableHead>Content</TableHead>
+                            <TableHead>Sent At</TableHead>
+                            <TableHead>Template</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {sentMessages.map(msg => (
+                            <TableRow key={msg.id}>
+                                <TableCell>
+                                    <div className="flex items-center gap-3">
+                                        <Avatar className="h-9 w-9">
+                                            <AvatarImage src={msg.contact.avatarUrl} alt={msg.contact.name} data-ai-hint="person avatar" />
+                                            <AvatarFallback>{msg.contact.name.charAt(0)}</AvatarFallback>
+                                        </Avatar>
+                                        <div>
+                                            <div className="font-medium">{msg.contact.name}</div>
+                                            <div className="text-sm text-muted-foreground">{msg.contact.email}</div>
+                                        </div>
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    <p className="max-w-xs truncate text-sm text-muted-foreground">{msg.content}</p>
+                                </TableCell>
+                                <TableCell>{format(msg.scheduledAt, 'PPP p')}</TableCell>
+                                <TableCell>{getTemplateName(msg.templateId)}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
             </div>
         ) : (
             <div className="text-center py-16 border-2 border-dashed rounded-lg">
