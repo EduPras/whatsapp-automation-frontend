@@ -2,11 +2,12 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from 'react';
-import { PlusCircle, CalendarClock, Send, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { PlusCircle, CalendarClock, Send, MoreHorizontal, Pencil, Trash2, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { ScheduledMessage, Contact, Template } from '@/lib/types';
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -78,12 +79,17 @@ const FormattedDate = ({ date }: { date: Date }) => {
         setIsClient(true);
     }, []);
 
-    return isClient ? <>{format(date, 'PPP p')}</> : <Loader2 className="h-4 w-4 animate-spin" />;
+    if (!isClient) {
+        return <Loader2 className="h-4 w-4 animate-spin" />;
+    }
+
+    return <>{format(date, 'PPP p')}</>;
 }
 
 export default function ScheduledMessagesPage() {
   const [messages, setMessages] = useState<ScheduledMessage[]>(initialScheduledMessages);
   const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleDeleteConfirm = () => {
     if (messageToDelete) {
@@ -98,21 +104,43 @@ export default function ScheduledMessagesPage() {
       return template ? <Badge variant="outline">{template.title}</Badge> : <Badge variant="secondary">Manual</Badge>;
   }
 
-  const upcomingMessages = messages.filter(m => m.status === 'scheduled');
-  const sentMessages = messages.filter(m => m.status === 'sent');
+  const filteredMessages = useMemo(() => {
+    if (!searchTerm) return messages;
+
+    const lowercasedFilter = searchTerm.toLowerCase();
+    return messages.filter(msg =>
+      msg.contact.name.toLowerCase().includes(lowercasedFilter) ||
+      msg.contact.email.toLowerCase().includes(lowercasedFilter) ||
+      msg.content.toLowerCase().includes(lowercasedFilter)
+    );
+  }, [messages, searchTerm]);
+
+  const upcomingMessages = filteredMessages.filter(m => m.status === 'scheduled');
+  const sentMessages = filteredMessages.filter(m => m.status === 'sent');
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
         <h1 className="text-3xl font-bold font-headline tracking-tight flex items-center gap-2">
           Scheduled Messages
         </h1>
-        <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
-            <Link href="/scheduled/new">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Schedule Message
-            </Link>
-        </Button>
+        <div className="flex w-full md:w-auto items-center gap-2">
+            <div className="relative w-full md:w-64">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input 
+                    placeholder="Search messages..." 
+                    className="pl-10" 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+            <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground flex-shrink-0">
+                <Link href="/scheduled/new">
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Schedule
+                </Link>
+            </Button>
+        </div>
       </div>
 
       <div>
@@ -182,7 +210,7 @@ export default function ScheduledMessagesPage() {
               <CalendarClock className="mx-auto h-12 w-12 text-muted-foreground" />
               <h3 className="mt-4 text-lg font-medium">No upcoming messages</h3>
               <p className="mt-1 text-sm text-muted-foreground">
-                Schedule a new message to get started.
+                {searchTerm ? `No results found for "${searchTerm}".` : "Schedule a new message to get started."}
               </p>
             </div>
         )}
@@ -233,7 +261,7 @@ export default function ScheduledMessagesPage() {
               <Send className="mx-auto h-12 w-12 text-muted-foreground" />
               <h3 className="mt-4 text-lg font-medium">No sent messages yet</h3>
               <p className="mt-1 text-sm text-muted-foreground">
-                Your sent messages will appear here.
+                {searchTerm ? `No results found for "${searchTerm}".` : "Your sent messages will appear here."}
               </p>
             </div>
         )}
