@@ -106,7 +106,7 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
          <SidebarProvider>
-          <div className="flex h-screen">
+          <div className="flex flex-1 h-screen">
             <Sidebar side="left" collapsible="icon">
               <SidebarHeader>
                 <div className="flex items-center justify-center p-2 group-data-[collapsible=icon]:hidden">
