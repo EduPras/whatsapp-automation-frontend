@@ -1,240 +1,28 @@
 
-"use client";
+import { ReactNode } from "react";
+import {NextIntlClientProvider, useMessages} from 'next-intl';
 
-import type { Metadata } from 'next';
-import { usePathname } from 'next/navigation';
-import { NextIntlClientProvider, useMessages, useTranslations } from 'next-intl';
-import './globals.css';
-import { CalendarClock, Inbox, MessageSquareText, FolderPlus, Folder, Trash2, CalendarCheck, Settings } from "lucide-react";
-import Link from "next/link";
-import { Header } from '@/components/header';
-import { Toaster } from "@/components/ui/toaster";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarProvider,
-  SidebarSeparator,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupContent,
-  SidebarMenuAction
-} from '@/components/ui/sidebar';
-import type { Folder as FolderType } from '@/lib/types';
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { Input } from '@/components/ui/input';
-
-const initialFolders: FolderType[] = [
-  { id: '1', name: 'Marketing' },
-  { id: '2', name: 'Appointment Reminders' },
-  { id: '3', name: 'General' },
-];
+// The following import is required to configure the locale for all pages
+// that are rendered without a specific locale.
+import '@/i18n';
 
 export default function RootLayout({
-  children,
-  params: { locale }
-}: Readonly<{
-  children: React.ReactNode;
-  params: { locale: string };
-}>) {
-  const pathname = usePathname();
-  const messages = useMessages();
-  const t = useTranslations('Sidebar');
+    children,
+    params: {locale}
+  }: {
+    children: ReactNode;
+    params: {locale: string};
+  }) {
+    const messages = useMessages();
+  
+    return (
+      <html lang={locale}>
+        <body>
+          <NextIntlClientProvider locale={locale} messages={messages}>
+            {children}
+          </NextIntlClientProvider>
+        </body>
+      </html>
+    );
+  }
 
-  const [folders, setFolders] = useState<FolderType[]>(initialFolders);
-  const [isFolderFormOpen, setIsFolderFormOpen] = useState(false);
-  const [newFolderName, setNewFolderName] = useState('');
-  const [folderToDelete, setFolderToDelete] = useState<FolderType | null>(null);
-
-  const handleSaveFolder = () => {
-    if (newFolderName.trim()) {
-      const newFolder: FolderType = {
-        id: (folders.length + 1).toString(),
-        name: newFolderName.trim(),
-      };
-      setFolders([...folders, newFolder]);
-      setNewFolderName('');
-      setIsFolderFormOpen(false);
-    }
-  };
-
-  const handleDeleteFolder = () => {
-    if (folderToDelete) {
-      setFolders(folders.filter(f => f.id !== folderToDelete.id));
-      setFolderToDelete(null);
-    }
-  };
-
-  const isLoginPage = pathname === `/${locale}`;
-
-  return (
-    <html lang={locale}>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet" />
-      </head>
-      <body className="font-body antialiased">
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          {isLoginPage ? (
-            children
-          ) : (
-            <SidebarProvider>
-              <div className="flex flex-1 h-screen">
-                <Sidebar side="left" collapsible="icon">
-                  <SidebarHeader>
-                    <div className="flex items-center justify-center p-2 group-data-[collapsible=icon]:hidden">
-                      <MessageSquareText className="h-6 w-6 text-primary" />
-                      <span className="ml-2 font-semibold font-headline">{t('appName')}</span>
-                    </div>
-                  </SidebarHeader>
-                  <SidebarContent>
-                    <SidebarMenu>
-                      <SidebarMenuItem>
-                        <SidebarMenuButton asChild tooltip={t('templates')}>
-                          <Link href="/templates">
-                            <Inbox />
-                            {t('templates')}
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                      <SidebarMenuItem>
-                        <SidebarMenuButton asChild tooltip={t('scheduled')}>
-                          <Link href="/scheduled">
-                            <CalendarClock />
-                            {t('scheduled')}
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                      <SidebarMenuItem>
-                        <SidebarMenuButton asChild tooltip={t('settings')}>
-                          <Link href="/settings">
-                            <Settings />
-                            {t('settings')}
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    </SidebarMenu>
-                    <SidebarSeparator />
-                    <SidebarGroup>
-                      <SidebarGroupLabel className="flex justify-between items-center">
-                        {t('folders')}
-                        <Button variant="ghost" size="icon" className="h-6 w-6 group-data-[collapsible=icon]:hidden" onClick={() => setIsFolderFormOpen(true)}>
-                          <FolderPlus className="h-4 w-4" />
-                        </Button>
-                      </SidebarGroupLabel>
-                      <SidebarGroupContent>
-                        <SidebarMenu>
-                          <SidebarMenuItem>
-                            <SidebarMenuButton asChild tooltip={t('allTemplates')}>
-                              <Link href="/templates">
-                                <Inbox />
-                                {t('allTemplates')}
-                              </Link>
-                            </SidebarMenuButton>
-                          </SidebarMenuItem>
-                          {folders.map(folder => {
-                            const isAppointmentFolder = folder.name === 'Appointment Reminders';
-                            const folderName = folder.name === 'Appointment Reminders' ? t('appointmentReminders') : folder.name;
-                            return (
-                              <SidebarMenuItem key={folder.id}>
-                                <SidebarMenuButton asChild tooltip={folderName}>
-                                  <Link href={`/templates?folder=${folder.name}`}>
-                                    {isAppointmentFolder ? <CalendarCheck /> : <Folder />}
-                                    {folderName}
-                                  </Link>
-                                </SidebarMenuButton>
-                                {!isAppointmentFolder && (
-                                  <SidebarMenuAction
-                                    showOnHover
-                                    onClick={() => setFolderToDelete(folder)}
-                                    className="text-muted-foreground hover:text-destructive"
-                                    aria-label={`Delete ${folderName} folder`}
-                                  >
-                                    <Trash2 />
-                                  </SidebarMenuAction>
-                                )}
-                              </SidebarMenuItem>
-                            )
-                          })}
-                        </SidebarMenu>
-                      </SidebarGroupContent>
-                    </SidebarGroup>
-                  </SidebarContent>
-                </Sidebar>
-
-                <div className="flex flex-col flex-1">
-                  <Header />
-                  <main className="flex-1 p-8 overflow-y-auto">
-                    {children}
-                  </main>
-                  <Toaster />
-                </div>
-              </div>
-
-              <Dialog open={isFolderFormOpen} onOpenChange={setIsFolderFormOpen}>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>{t('createNewFolder')}</DialogTitle>
-                    <DialogDescription>{t('folderNameDescription')}</DialogDescription>
-                  </DialogHeader>
-                  <div className="py-4">
-                    <Input
-                      placeholder={t('folderNamePlaceholder')}
-                      value={newFolderName}
-                      onChange={(e) => setNewFolderName(e.target.value)}
-                      autoFocus
-                    />
-                  </div>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsFolderFormOpen(false)}>{useTranslations('Buttons')('cancel')}</Button>
-                    <Button onClick={handleSaveFolder}>{useTranslations('Buttons')('save')}</Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-
-              <AlertDialog open={!!folderToDelete} onOpenChange={() => setFolderToDelete(null)}>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>{t('deleteFolderTitle')}</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      {t('deleteFolderDescription', { folderName: folderToDelete?.name })}
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel onClick={() => setFolderToDelete(null)}>{useTranslations('Buttons')('cancel')}</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDeleteFolder} className="bg-destructive hover:bg-destructive/90">
-                      {t('deleteFolderAction')}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </SidebarProvider>
-          )}
-        </NextIntlClientProvider>
-      </body>
-    </html>
-  );
-}

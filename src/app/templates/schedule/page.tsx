@@ -26,8 +26,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
 import type { Contact, Template } from '@/lib/types';
-import Link from 'next/link';
-import { Textarea } from '@/components/ui/textarea';
+import { useTranslations } from 'next-intl';
 
 const initialContacts: Contact[] = [
   { id: '1', name: 'Alice Johnson', email: 'alice@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
@@ -54,6 +53,9 @@ export default function ScheduleFromTemplatePage() {
   const [contacts] = useState<Contact[]>(initialContacts);
   const { toast } = useToast();
   const [contactSearchTerm, setContactSearchTerm] = useState('');
+  const t = useTranslations('ScheduleFromTemplatePage');
+  const tForm = useTranslations('ScheduleForm');
+  const tToast = useTranslations('Toast');
 
   useEffect(() => {
     if (templateId) {
@@ -69,16 +71,32 @@ export default function ScheduleFromTemplatePage() {
       scheduledAtTime: '09:00',
     },
   });
+  
+  const selectedContactsCount = form.watch('contactIds').length;
 
   const filteredContacts = contacts.filter(contact =>
     contact.name.toLowerCase().includes(contactSearchTerm.toLowerCase())
   );
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
+    // Override zod validation messages with translated ones
+    const validation = z.object({
+        contactIds: z.array(z.string()).nonempty({ message: tForm('selectContactsError') }),
+        scheduledAtDate: z.date({ required_error: tForm('dateError') }),
+        scheduledAtTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, tForm('timeError')),
+    }).safeParse(values);
+
+    if (!validation.success) {
+        form.setError('contactIds', { message: validation.error.formErrors.fieldErrors.contactIds?.join(', ') });
+        form.setError('scheduledAtDate', { message: validation.error.formErrors.fieldErrors.scheduledAtDate?.join(', ') });
+        form.setError('scheduledAtTime', { message: validation.error.formErrors.fieldErrors.scheduledAtTime?.join(', ') });
+        return;
+    }
+
     console.log(values);
     toast({
-      title: "Messages Scheduled!",
-      description: `Your message has been scheduled for ${values.contactIds.length} contacts.`,
+      title: tToast('messageScheduled'),
+      description: tToast('messageScheduledDescription', { count: values.contactIds.length }),
     });
   };
 
@@ -86,7 +104,7 @@ export default function ScheduleFromTemplatePage() {
     return (
         <div className="text-center">
             <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
-            <p className="mt-4 text-muted-foreground">Loading template...</p>
+            <p className="mt-4 text-muted-foreground">{useTranslations('General')('loading')}</p>
         </div>
     );
   }
@@ -95,7 +113,7 @@ export default function ScheduleFromTemplatePage() {
     <div>
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-bold font-headline tracking-tight text-center">
-          Schedule from Template
+          {t('title')}
         </h1>
         <div/>
       </div>
@@ -103,14 +121,14 @@ export default function ScheduleFromTemplatePage() {
       <Card>
           <CardHeader>
               <CardTitle className="flex items-center gap-2"><FileText className="h-5 w-5 text-primary"/> {template.title}</CardTitle>
-              <CardDescription>Schedule this message to be sent to multiple contacts.</CardDescription>
+              <CardDescription>{t('description')}</CardDescription>
           </CardHeader>
           <CardContent>
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                       <Card>
                           <CardHeader>
-                              <CardTitle>Template Content</CardTitle>
+                              <CardTitle>{t('templateContent')}</CardTitle>
                           </CardHeader>
                           <CardContent>
                               <div className="p-4 border rounded-md bg-secondary/50">
@@ -125,15 +143,15 @@ export default function ScheduleFromTemplatePage() {
                           render={() => (
                               <FormItem>
                                   <div className="mb-4">
-                                      <FormLabel className="text-base">Contacts</FormLabel>
+                                      <FormLabel className="text-base">{t('contactsLabel')}</FormLabel>
                                       <FormDescription>
-                                      Select the contacts to send this message to.
+                                      {t('contactsDescription')}
                                       </FormDescription>
                                   </div>
                                   <div className="relative mb-2">
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                     <Input 
-                                        placeholder="Search contacts..." 
+                                        placeholder={tForm('searchContactsPlaceholder')} 
                                         className="pl-10" 
                                         value={contactSearchTerm}
                                         onChange={(e) => setContactSearchTerm(e.target.value)}
@@ -185,7 +203,7 @@ export default function ScheduleFromTemplatePage() {
                               name="scheduledAtDate"
                               render={({ field }) => (
                                   <FormItem>
-                                  <FormLabel>Schedule Date</FormLabel>
+                                  <FormLabel>{tForm('dateLabel')}</FormLabel>
                                   <Popover>
                                       <PopoverTrigger asChild>
                                       <FormControl>
@@ -200,7 +218,7 @@ export default function ScheduleFromTemplatePage() {
                                           {field.value ? (
                                               format(field.value, "PPP")
                                           ) : (
-                                              <span>Pick a date</span>
+                                              <span>{tForm('datePlaceholder')}</span>
                                           )}
                                           </Button>
                                       </FormControl>
@@ -226,7 +244,7 @@ export default function ScheduleFromTemplatePage() {
                               name="scheduledAtTime"
                               render={({ field }) => (
                                   <FormItem>
-                                  <FormLabel>Schedule Time</FormLabel>
+                                  <FormLabel>{tForm('timeLabel')}</FormLabel>
                                   <FormControl>
                                         <div className="relative">
                                           <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -239,9 +257,9 @@ export default function ScheduleFromTemplatePage() {
                           />
                       </div>
 
-                        <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
+                        <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={selectedContactsCount === 0}>
                           <Send className="mr-2 h-4 w-4" />
-                          Schedule for {form.getValues('contactIds').length} contacts
+                           {t('scheduleForContacts', {count: selectedContactsCount})}
                       </Button>
                   </form>
               </Form>

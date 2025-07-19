@@ -28,6 +28,7 @@ import type { Contact, ScheduledMessage } from '@/lib/types';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useTranslations } from 'next-intl';
 
 
 const initialContacts: Contact[] = [
@@ -77,6 +78,12 @@ export default function EditScheduledMessagePage() {
   const [contacts] = useState<Contact[]>(initialContacts);
   const { toast } = useToast();
   const [contactSearchTerm, setContactSearchTerm] = useState('');
+  const t = useTranslations('EditScheduledMessagePage');
+  const tFreestyle = useTranslations('FreestyleMessagePage');
+  const tForm = useTranslations('ScheduleForm');
+  const tToast = useTranslations('Toast');
+  const tContent = useTranslations('TemplateFormDialog');
+  const tContacts = useTranslations('ScheduleFromTemplatePage');
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -113,10 +120,26 @@ export default function EditScheduledMessagePage() {
   };
   
   const onSubmit = (values: z.infer<typeof formSchema>) => {
+    // Override zod validation messages with translated ones
+    const validation = z.object({
+        contactIds: z.array(z.string()).nonempty({ message: tForm('selectContactsError') }),
+        content: z.string().min(10, tForm('contentError')),
+        scheduledAtDate: z.date({ required_error: tForm('dateError') }),
+        scheduledAtTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, tForm('timeError')),
+    }).safeParse(values);
+
+    if (!validation.success) {
+        form.setError('contactIds', { message: validation.error.formErrors.fieldErrors.contactIds?.join(', ') });
+        form.setError('content', { message: validation.error.formErrors.fieldErrors.content?.join(', ') });
+        form.setError('scheduledAtDate', { message: validation.error.formErrors.fieldErrors.scheduledAtDate?.join(', ') });
+        form.setError('scheduledAtTime', { message: validation.error.formErrors.fieldErrors.scheduledAtTime?.join(', ') });
+        return;
+    }
+
     console.log(values);
     toast({
-      title: "Message Updated!",
-      description: `Your message has been updated.`,
+      title: tToast('messageUpdated'),
+      description: tToast('messageUpdatedDescription'),
     });
   };
 
@@ -124,7 +147,7 @@ export default function EditScheduledMessagePage() {
     return (
         <div className="flex justify-center items-center h-full">
             <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
-            <p className="mt-4 text-muted-foreground">Loading message...</p>
+            <p className="mt-4 text-muted-foreground">{useTranslations('General')('loading')}</p>
         </div>
     );
   }
@@ -135,22 +158,22 @@ export default function EditScheduledMessagePage() {
         <Button asChild variant="outline" size="sm">
             <Link href="/scheduled">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Scheduled
+                {tFreestyle('backToScheduled')}
             </Link>
         </Button>
       </div>
 
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-bold font-headline tracking-tight text-center">
-          Edit Scheduled Message
+          {t('title')}
         </h1>
         <div/>
       </div>
 
         <Card>
             <CardHeader>
-                <CardTitle>Compose Message</CardTitle>
-                <CardDescription>Update the details for your scheduled message.</CardDescription>
+                <CardTitle>{tFreestyle('composeTitle')}</CardTitle>
+                <CardDescription>{t('composeDescription')}</CardDescription>
             </CardHeader>
             <CardContent>
                  <Form {...form}>
@@ -161,15 +184,15 @@ export default function EditScheduledMessagePage() {
                             render={() => (
                                 <FormItem>
                                     <div className="mb-4">
-                                        <FormLabel className="text-base flex items-center gap-2"><Users/> Contacts</FormLabel>
+                                        <FormLabel className="text-base flex items-center gap-2"><Users/> {tContacts('contactsLabel')}</FormLabel>
                                         <FormDescription>
-                                        Select the contacts to send this message to.
+                                        {tContacts('contactsDescription')}
                                         </FormDescription>
                                     </div>
                                     <div className="relative mb-2">
                                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                         <Input 
-                                            placeholder="Search contacts..." 
+                                            placeholder={tForm('searchContactsPlaceholder')}
                                             className="pl-10" 
                                             value={contactSearchTerm}
                                             onChange={(e) => setContactSearchTerm(e.target.value)}
@@ -221,19 +244,19 @@ export default function EditScheduledMessagePage() {
                             render={({ field }) => (
                                 <FormItem>
                                 <div className="flex justify-between items-center">
-                                    <FormLabel>Content</FormLabel>
+                                    <FormLabel>{tContent('contentLabel')}</FormLabel>
                                     <Button type="button" variant="ghost" size="sm" onClick={handleAiEnrich} disabled={isAiLoading}>
                                     {isAiLoading ? (
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                     ) : (
                                         <Sparkles className="mr-2 h-4 w-4" />
                                     )}
-                                    Enrich with AI
+                                    {tContent('enrichWithAI')}
                                     </Button>
                                 </div>
                                 <FormControl>
                                     <Textarea
-                                    placeholder="Write your personal message here..."
+                                    placeholder={tContent('contentPlaceholder')}
                                     className="min-h-[150px] resize-y"
                                     {...field}
                                     />
@@ -248,7 +271,7 @@ export default function EditScheduledMessagePage() {
                                 name="scheduledAtDate"
                                 render={({ field }) => (
                                     <FormItem>
-                                    <FormLabel>Schedule Date</FormLabel>
+                                    <FormLabel>{tForm('dateLabel')}</FormLabel>
                                     <Popover>
                                         <PopoverTrigger asChild>
                                         <FormControl>
@@ -263,7 +286,7 @@ export default function EditScheduledMessagePage() {
                                             {field.value ? (
                                                 format(field.value, "PPP")
                                             ) : (
-                                                <span>Pick a date</span>
+                                                <span>{tForm('datePlaceholder')}</span>
                                             )}
                                             </Button>
                                         </FormControl>
@@ -289,7 +312,7 @@ export default function EditScheduledMessagePage() {
                                 name="scheduledAtTime"
                                 render={({ field }) => (
                                     <FormItem>
-                                    <FormLabel>Schedule Time</FormLabel>
+                                    <FormLabel>{tForm('timeLabel')}</FormLabel>
                                     <FormControl>
                                          <div className="relative">
                                             <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -304,7 +327,7 @@ export default function EditScheduledMessagePage() {
 
                          <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={selectedContactsCount === 0}>
                             <Send className="mr-2 h-4 w-4" />
-                            Update Message
+                            {t('updateMessage')}
                         </Button>
                     </form>
                 </Form>

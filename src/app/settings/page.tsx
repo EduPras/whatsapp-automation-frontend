@@ -8,12 +8,14 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Separator } from '@/components/ui/separator';
+import { useTranslations } from 'next-intl';
 
 export default function SettingsPage() {
     const [remindersEnabled, setRemindersEnabled] = useState(true);
     const [hoursBefore, setHoursBefore] = useState(24);
     const { toast } = useToast();
+    const t = useTranslations('SettingsPage');
+    const tToast = useTranslations('Toast');
 
     const handleSaveChanges = () => {
         console.log({
@@ -21,30 +23,30 @@ export default function SettingsPage() {
             hoursBefore
         });
         toast({
-            title: "Settings Saved",
-            description: "Your appointment reminder settings have been updated.",
+            title: tToast('settingsSaved'),
+            description: tToast('settingsSavedDescription'),
         });
     };
     
     return (
         <div>
             <h1 className="text-3xl font-bold font-headline tracking-tight mb-8">
-                Settings
+                {t('title')}
             </h1>
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Appointment Reminders</CardTitle>
+                    <CardTitle>{t('remindersTitle')}</CardTitle>
                     <CardDescription>
-                        Configure automated messages for upcoming appointments. These settings will apply to all reminders sent from the "Appointment Reminders" template.
+                       {t('remindersDescription')}
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="flex items-center justify-between space-x-2 p-4 border rounded-lg">
                         <Label htmlFor="reminders-enabled" className="flex flex-col space-y-1">
-                            <span>Enable Appointment Reminders</span>
+                            <span>{t('enableLabel')}</span>
                             <span className="font-normal leading-snug text-muted-foreground">
-                                Automatically send reminders for scheduled appointments.
+                                {t('enableDescription')}
                             </span>
                         </Label>
                         <Switch
@@ -55,7 +57,7 @@ export default function SettingsPage() {
                     </div>
 
                     <div className="space-y-2 p-4 border rounded-lg">
-                        <Label htmlFor="hours-before">Send Reminder Before Appointment</Label>
+                        <Label htmlFor="hours-before">{t('sendBeforeLabel')}</Label>
                          <div className="relative max-w-xs">
                             <Input
                                 id="hours-before"
@@ -67,17 +69,17 @@ export default function SettingsPage() {
                                 disabled={!remindersEnabled}
                             />
                              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-muted-foreground">
-                                hours
+                                {t('sendBeforeUnit')}
                             </div>
                         </div>
                         <p className="text-sm text-muted-foreground">
-                            Define how many hours before the scheduled time the reminder should be sent.
+                            {t('sendBeforeDescription')}
                         </p>
                     </div>
 
                     <div className="pt-4">
                         <Button onClick={handleSaveChanges} className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                            Save Changes
+                            {t('saveChanges')}
                         </Button>
                     </div>
 

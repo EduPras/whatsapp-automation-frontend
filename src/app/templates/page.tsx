@@ -18,6 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useTranslations } from 'next-intl';
 
 
 const initialFolders: FolderType[] = [
@@ -60,14 +61,24 @@ const initialTemplates: Template[] = [
 export default function TemplatesPage() {
   const searchParams = useSearchParams();
   const folderParam = searchParams.get('folder');
+  const t = useTranslations('TemplatesPage');
+  const tSidebar = useTranslations('Sidebar');
+  const tButtons = useTranslations('Buttons');
   
   const [folders] = useState<FolderType[]>(initialFolders);
   const [templates, setTemplates] = useState<Template[]>(initialTemplates);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [templateToDelete, setTemplateToDelete] = useState<string | null>(null);
+  
+  const getActiveFolderName = () => {
+    if (!folderParam) return tSidebar('allTemplates');
+    if (folderParam === 'Appointment Reminders') return tSidebar('appointmentReminders');
+    return folderParam;
+  }
 
   const activeFolder = folderParam || 'All Templates';
+  const activeFolderName = getActiveFolderName();
 
   const handleCreateNew = () => {
     setSelectedTemplate(null);
@@ -114,11 +125,11 @@ export default function TemplatesPage() {
       <div>
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold font-headline tracking-tight">
-            {activeFolder}
+            {activeFolderName}
           </h1>
           <Button onClick={handleCreateNew} className="bg-accent hover:bg-accent/90 text-accent-foreground">
             <PlusCircle className="mr-2 h-4 w-4" />
-            Create Template
+            {t('createTemplate')}
           </Button>
         </div>
 
@@ -136,14 +147,14 @@ export default function TemplatesPage() {
         ) : (
           <div className="text-center py-16 border-2 border-dashed rounded-lg">
             <MessageSquareText className="mx-auto h-12 w-12 text-muted-foreground" />
-            <h3 className="mt-4 text-lg font-medium">No templates in this folder</h3>
+            <h3 className="mt-4 text-lg font-medium">{t('noTemplatesInFolder')}</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Get started by creating a new message template.
+              {t('getStarted')}
             </p>
             <div className="mt-6">
                <Button onClick={handleCreateNew} className="bg-accent hover:bg-accent/90 text-accent-foreground">
                   <PlusCircle className="mr-2 h-4 w-4" />
-                  Create Template
+                  {t('createTemplate')}
               </Button>
             </div>
           </div>
@@ -154,22 +165,22 @@ export default function TemplatesPage() {
         onOpenChange={setIsFormOpen}
         template={selectedTemplate}
         onSave={handleSaveTemplate}
-        folders={folders.map(f => f.name)}
+        folders={folders}
         activeFolder={activeFolder}
       />
 
       <AlertDialog open={!!templateToDelete} onOpenChange={() => setTemplateToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>{t('deleteTemplateTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the template.
+              {t('deleteTemplateDescription')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setTemplateToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={() => setTemplateToDelete(null)}>{tButtons('cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteConfirm} className="bg-destructive hover:bg-destructive/90">
-              Delete
+              {tButtons('delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
