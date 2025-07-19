@@ -19,6 +19,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useTranslations } from 'next-intl';
+import { AppLayout } from '@/components/app-layout';
 
 
 const initialFolders: FolderType[] = [
@@ -122,6 +123,7 @@ export default function TemplatesPage() {
     : templates.filter(t => t.folder === activeFolder);
 
   return (
+    <AppLayout>
       <div>
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold font-headline tracking-tight">
@@ -186,5 +188,6 @@ export default function TemplatesPage() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
+    </AppLayout>
   );
 }

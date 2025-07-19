@@ -36,6 +36,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { AppLayout } from "@/components/app-layout";
 
 const initialContacts: Contact[] = [
   { id: '1', name: 'Alice Johnson', email: 'alice@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
@@ -128,199 +129,200 @@ export default function ScheduledMessagesPage() {
   const sentMessages = filteredMessages.filter(m => m.status === 'sent');
 
   return (
-    <div>
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
-        <h1 className="text-3xl font-bold font-headline tracking-tight flex items-center gap-2">
-          {t('title')}
-        </h1>
-        <div className="flex w-full md:w-auto items-center gap-2">
-            <div className="relative w-full md:w-64">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input 
-                    placeholder={t('searchPlaceholder')} 
-                    className="pl-10" 
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
-            <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground flex-shrink-0">
-                <Link href="/scheduled/new">
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    {t('scheduleAction')}
-                </Link>
-            </Button>
-        </div>
-      </div>
-
+    <AppLayout>
       <div>
-        <h2 className="text-xl font-semibold mb-4 flex items-center">
-            {t('upcoming')} <Badge variant="secondary" className="ml-2">{upcomingMessages.length}</Badge>
-        </h2>
-        {upcomingMessages.length > 0 ? (
-            <div className="rounded-lg border">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>{t('contactsHeader')}</TableHead>
-                            <TableHead>{t('contentHeader')}</TableHead>
-                            <TableHead className="hidden md:table-cell">{t('scheduledAtHeader')}</TableHead>
-                            <TableHead className="hidden md:table-cell">{t('templateHeader')}</TableHead>
-                            <TableHead className="text-right">{t('actionsHeader')}</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {upcomingMessages.map(msg => (
-                            <TableRow key={msg.id}>
-                                <TableCell>
-                                    <div className="flex items-center gap-3">
-                                      {msg.contacts.length === 1 ? (
-                                        <>
-                                          <Avatar className="h-9 w-9">
-                                              <AvatarImage src={msg.contacts[0].avatarUrl} alt={msg.contacts[0].name} data-ai-hint="person avatar" />
-                                              <AvatarFallback>{msg.contacts[0].name.charAt(0)}</AvatarFallback>
-                                          </Avatar>
-                                          <div>
-                                              <div className="font-medium">{msg.contacts[0].name}</div>
-                                              <div className="text-sm text-muted-foreground hidden md:block">{msg.contacts[0].email}</div>
-                                          </div>
-                                        </>
-                                      ) : (
-                                        <>
-                                          <Avatar className="h-9 w-9">
-                                            <AvatarFallback><Users className="h-5 w-5"/></AvatarFallback>
-                                          </Avatar>
-                                          <div>
-                                              <div className="font-medium">{t('groupMessage')}</div>
-                                              <div className="text-sm text-muted-foreground">{t('recipients', {count: msg.contacts.length})}</div>
-                                          </div>
-                                        </>
-                                      )}
-                                    </div>
-                                </TableCell>
-                                <TableCell>
-                                    <p className="max-w-xs truncate text-sm text-muted-foreground">{msg.content}</p>
-                                </TableCell>
-                                <TableCell className="hidden md:table-cell"><FormattedDate date={msg.scheduledAt} /></TableCell>
-                                <TableCell className="hidden md:table-cell">{getTemplateName(msg.templateId)}</TableCell>
-                                <TableCell className="text-right">
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                                            <MoreHorizontal className="h-4 w-4" />
-                                        </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                        <DropdownMenuItem asChild>
-                                            <Link href={`/scheduled/edit/${msg.id}`}>
-                                            <Pencil className="mr-2 h-4 w-4" />
-                                            {tButtons('edit')}
-                                            </Link>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={() => setMessageToDelete(msg.id)} className="text-destructive">
-                                            <Trash2 className="mr-2 h-4 w-4" />
-                                            {tButtons('delete')}
-                                        </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </div>
-        ) : (
-             <div className="text-center py-16 border-2 border-dashed rounded-lg">
-              <CalendarClock className="mx-auto h-12 w-12 text-muted-foreground" />
-              <h3 className="mt-4 text-lg font-medium">{t('noUpcomingMessages')}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {searchTerm ? t('noUpcomingMessagesSearch', {searchTerm}) : t('noUpcomingMessagesDescription')}
-              </p>
-            </div>
-        )}
-      </div>
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
+          <h1 className="text-3xl font-bold font-headline tracking-tight flex items-center gap-2">
+            {t('title')}
+          </h1>
+          <div className="flex w-full md:w-auto items-center gap-2">
+              <div className="relative w-full md:w-64">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input 
+                      placeholder={t('searchPlaceholder')} 
+                      className="pl-10" 
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+              </div>
+              <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground flex-shrink-0">
+                  <Link href="/scheduled/new">
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      {t('scheduleAction')}
+                  </Link>
+              </Button>
+          </div>
+        </div>
 
-       <div className="mt-12">
-        <h2 className="text-xl font-semibold mb-4 flex items-center">
-            {t('sent')} <Badge variant="secondary" className="ml-2">{sentMessages.length}</Badge>
-        </h2>
-        {sentMessages.length > 0 ? (
-            <div className="rounded-lg border">
-                <Table>
-                     <TableHeader>
-                        <TableRow>
-                            <TableHead>{t('contactsHeader')}</TableHead>
-                            <TableHead>{t('contentHeader')}</TableHead>
-                            <TableHead className="hidden md:table-cell">{t('sentAtHeader')}</TableHead>
-                            <TableHead className="hidden md:table-cell">{t('templateHeader')}</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {sentMessages.map(msg => (
-                            <TableRow key={msg.id}>
-                                <TableCell>
-                                    <div className="flex items-center gap-3">
+        <div>
+          <h2 className="text-xl font-semibold mb-4 flex items-center">
+              {t('upcoming')} <Badge variant="secondary" className="ml-2">{upcomingMessages.length}</Badge>
+          </h2>
+          {upcomingMessages.length > 0 ? (
+              <div className="rounded-lg border">
+                  <Table>
+                      <TableHeader>
+                          <TableRow>
+                              <TableHead>{t('contactsHeader')}</TableHead>
+                              <TableHead>{t('contentHeader')}</TableHead>
+                              <TableHead className="hidden md:table-cell">{t('scheduledAtHeader')}</TableHead>
+                              <TableHead className="hidden md:table-cell">{t('templateHeader')}</TableHead>
+                              <TableHead className="text-right">{t('actionsHeader')}</TableHead>
+                          </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                          {upcomingMessages.map(msg => (
+                              <TableRow key={msg.id}>
+                                  <TableCell>
+                                      <div className="flex items-center gap-3">
                                         {msg.contacts.length === 1 ? (
-                                        <>
-                                          <Avatar className="h-9 w-9">
-                                              <AvatarImage src={msg.contacts[0].avatarUrl} alt={msg.contacts[0].name} data-ai-hint="person avatar" />
-                                              <AvatarFallback>{msg.contacts[0].name.charAt(0)}</AvatarFallback>
-                                          </Avatar>
-                                          <div>
-                                              <div className="font-medium">{msg.contacts[0].name}</div>
-                                              <div className="text-sm text-muted-foreground hidden md:block">{msg.contacts[0].email}</div>
-                                          </div>
-                                        </>
-                                      ) : (
-                                        <>
-                                          <Avatar className="h-9 w-9">
-                                            <AvatarFallback><Users className="h-5 w-5"/></AvatarFallback>
-                                          </Avatar>
-                                          <div>
-                                              <div className="font-medium">{t('groupMessage')}</div>
-                                              <div className="text-sm text-muted-foreground">{t('recipients', {count: msg.contacts.length})}</div>
-                                          </div>
-                                        </>
-                                      )}
-                                    </div>
-                                </TableCell>
-                                <TableCell>
-                                    <p className="max-w-xs truncate text-sm text-muted-foreground">{msg.content}</p>
-                                </TableCell>
-                                <TableCell className="hidden md:table-cell"><FormattedDate date={msg.scheduledAt} /></TableCell>
-                                <TableCell className="hidden md:table-cell">{getTemplateName(msg.templateId)}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </div>
-        ) : (
-            <div className="text-center py-16 border-2 border-dashed rounded-lg">
-              <Send className="mx-auto h-12 w-12 text-muted-foreground" />
-              <h3 className="mt-4 text-lg font-medium">{t('noSentMessages')}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {searchTerm ? t('noSentMessagesSearch', {searchTerm}) : t('noSentMessagesDescription')}
-              </p>
-            </div>
-        )}
+                                          <>
+                                            <Avatar className="h-9 w-9">
+                                                <AvatarImage src={msg.contacts[0].avatarUrl} alt={msg.contacts[0].name} data-ai-hint="person avatar" />
+                                                <AvatarFallback>{msg.contacts[0].name.charAt(0)}</AvatarFallback>
+                                            </Avatar>
+                                            <div>
+                                                <div className="font-medium">{msg.contacts[0].name}</div>
+                                                <div className="text-sm text-muted-foreground hidden md:block">{msg.contacts[0].email}</div>
+                                            </div>
+                                          </>
+                                        ) : (
+                                          <>
+                                            <Avatar className="h-9 w-9">
+                                              <AvatarFallback><Users className="h-5 w-5"/></AvatarFallback>
+                                            </Avatar>
+                                            <div>
+                                                <div className="font-medium">{t('groupMessage')}</div>
+                                                <div className="text-sm text-muted-foreground">{t('recipients', {count: msg.contacts.length})}</div>
+                                            </div>
+                                          </>
+                                        )}
+                                      </div>
+                                  </TableCell>
+                                  <TableCell>
+                                      <p className="max-w-xs truncate text-sm text-muted-foreground">{msg.content}</p>
+                                  </TableCell>
+                                  <TableCell className="hidden md:table-cell"><FormattedDate date={msg.scheduledAt} /></TableCell>
+                                  <TableCell className="hidden md:table-cell">{getTemplateName(msg.templateId)}</TableCell>
+                                  <TableCell className="text-right">
+                                      <DropdownMenu>
+                                          <DropdownMenuTrigger asChild>
+                                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                                              <MoreHorizontal className="h-4 w-4" />
+                                          </Button>
+                                          </DropdownMenuTrigger>
+                                          <DropdownMenuContent align="end">
+                                          <DropdownMenuItem asChild>
+                                              <Link href={`/scheduled/edit/${msg.id}`}>
+                                              <Pencil className="mr-2 h-4 w-4" />
+                                              {tButtons('edit')}
+                                              </Link>
+                                          </DropdownMenuItem>
+                                          <DropdownMenuItem onClick={() => setMessageToDelete(msg.id)} className="text-destructive">
+                                              <Trash2 className="mr-2 h-4 w-4" />
+                                              {tButtons('delete')}
+                                          </DropdownMenuItem>
+                                          </DropdownMenuContent>
+                                      </DropdownMenu>
+                                  </TableCell>
+                              </TableRow>
+                          ))}
+                      </TableBody>
+                  </Table>
+              </div>
+          ) : (
+              <div className="text-center py-16 border-2 border-dashed rounded-lg">
+                <CalendarClock className="mx-auto h-12 w-12 text-muted-foreground" />
+                <h3 className="mt-4 text-lg font-medium">{t('noUpcomingMessages')}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {searchTerm ? t('noUpcomingMessagesSearch', {searchTerm}) : t('noUpcomingMessagesDescription')}
+                </p>
+              </div>
+          )}
+        </div>
+
+        <div className="mt-12">
+          <h2 className="text-xl font-semibold mb-4 flex items-center">
+              {t('sent')} <Badge variant="secondary" className="ml-2">{sentMessages.length}</Badge>
+          </h2>
+          {sentMessages.length > 0 ? (
+              <div className="rounded-lg border">
+                  <Table>
+                      <TableHeader>
+                          <TableRow>
+                              <TableHead>{t('contactsHeader')}</TableHead>
+                              <TableHead>{t('contentHeader')}</TableHead>
+                              <TableHead className="hidden md:table-cell">{t('sentAtHeader')}</TableHead>
+                              <TableHead className="hidden md:table-cell">{t('templateHeader')}</TableHead>
+                          </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                          {sentMessages.map(msg => (
+                              <TableRow key={msg.id}>
+                                  <TableCell>
+                                      <div className="flex items-center gap-3">
+                                          {msg.contacts.length === 1 ? (
+                                          <>
+                                            <Avatar className="h-9 w-9">
+                                                <AvatarImage src={msg.contacts[0].avatarUrl} alt={msg.contacts[0].name} data-ai-hint="person avatar" />
+                                                <AvatarFallback>{msg.contacts[0].name.charAt(0)}</AvatarFallback>
+                                            </Avatar>
+                                            <div>
+                                                <div className="font-medium">{msg.contacts[0].name}</div>
+                                                <div className="text-sm text-muted-foreground hidden md:block">{msg.contacts[0].email}</div>
+                                            </div>
+                                          </>
+                                        ) : (
+                                          <>
+                                            <Avatar className="h-9 w-9">
+                                              <AvatarFallback><Users className="h-5 w-5"/></AvatarFallback>
+                                            </Avatar>
+                                            <div>
+                                                <div className="font-medium">{t('groupMessage')}</div>
+                                                <div className="text-sm text-muted-foreground">{t('recipients', {count: msg.contacts.length})}</div>
+                                            </div>
+                                          </>
+                                        )}
+                                      </div>
+                                  </TableCell>
+                                  <TableCell>
+                                      <p className="max-w-xs truncate text-sm text-muted-foreground">{msg.content}</p>
+                                  </TableCell>
+                                  <TableCell className="hidden md:table-cell"><FormattedDate date={msg.scheduledAt} /></TableCell>
+                                  <TableCell className="hidden md:table-cell">{getTemplateName(msg.templateId)}</TableCell>
+                              </TableRow>
+                          ))}
+                      </TableBody>
+                  </Table>
+              </div>
+          ) : (
+              <div className="text-center py-16 border-2 border-dashed rounded-lg">
+                <Send className="mx-auto h-12 w-12 text-muted-foreground" />
+                <h3 className="mt-4 text-lg font-medium">{t('noSentMessages')}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {searchTerm ? t('noSentMessagesSearch', {searchTerm}) : t('noSentMessagesDescription')}
+                </p>
+              </div>
+          )}
+        </div>
+
+        <AlertDialog open={!!messageToDelete} onOpenChange={() => setMessageToDelete(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t('deleteMessageTitle')}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {t('deleteMessageDescription')}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setMessageToDelete(null)}>{tButtons('cancel')}</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteConfirm} className="bg-destructive hover:bg-destructive/90">
+                {tButtons('delete')}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
-
-      <AlertDialog open={!!messageToDelete} onOpenChange={() => setMessageToDelete(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('deleteMessageTitle')}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t('deleteMessageDescription')}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setMessageToDelete(null)}>{tButtons('cancel')}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-destructive hover:bg-destructive/90">
-              {tButtons('delete')}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-    </div>
+    </AppLayout>
   );
 }

@@ -29,6 +29,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useTranslations } from 'next-intl';
+import { AppLayout } from '@/components/app-layout';
 
 
 const initialContacts: Contact[] = [
@@ -67,7 +68,7 @@ const formSchema = z.object({
   contactIds: z.array(z.string()).nonempty({ message: 'Please select at least one contact.' }),
   content: z.string().min(10, 'Content must be at least 10 characters long.'),
   scheduledAtDate: z.date({ required_error: "Please select a date." }),
-  scheduledAtTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:MM)."),
+  scheduledAtTime: z.string().regex(/^([01]\\d|2[0-3]):([0-5]\\d)$/, "Invalid time format (HH:MM)."),
 });
 
 export default function EditScheduledMessagePage() {
@@ -125,7 +126,7 @@ export default function EditScheduledMessagePage() {
         contactIds: z.array(z.string()).nonempty({ message: tForm('selectContactsError') }),
         content: z.string().min(10, tForm('contentError')),
         scheduledAtDate: z.date({ required_error: tForm('dateError') }),
-        scheduledAtTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, tForm('timeError')),
+        scheduledAtTime: z.string().regex(/^([01]\\d|2[0-3]):([0-5]\\d)$/, tForm('timeError')),
     }).safeParse(values);
 
     if (!validation.success) {
@@ -145,14 +146,17 @@ export default function EditScheduledMessagePage() {
 
   if (!message) {
     return (
+      <AppLayout>
         <div className="flex justify-center items-center h-full">
             <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
             <p className="mt-4 text-muted-foreground">{useTranslations('General')('loading')}</p>
         </div>
+      </AppLayout>
     );
   }
 
   return (
+    <AppLayout>
     <div>
        <div className="mb-8">
         <Button asChild variant="outline" size="sm">
@@ -334,5 +338,6 @@ export default function EditScheduledMessagePage() {
             </CardContent>
         </Card>
     </div>
+    </AppLayout>
   );
 }

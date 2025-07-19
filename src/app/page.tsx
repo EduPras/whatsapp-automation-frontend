@@ -3,5 +3,5 @@
 
 import {Redirect} from 'next';
 export default function RootPage() {
-  return <Redirect to="/templates" />;
+  return <Redirect to="/en" />;
 }
