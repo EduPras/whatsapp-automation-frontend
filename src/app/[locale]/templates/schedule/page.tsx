@@ -25,15 +25,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
-import type { Contact, Template, ScheduledMessage } from '@/lib/types';
+import type { Template, ScheduledMessage } from '@/lib/types';
 import { useTranslations } from 'next-intl';
 import { useData } from '@/lib/data-provider';
-
-const formSchema = z.object({
-  contactIds: z.array(z.string()).nonempty({ message: 'Please select at least one contact.' }),
-  scheduledAtDate: z.date({ required_error: "Please select a date." }),
-  scheduledAtTime: z.string().regex(/^([01]\\d|2[0-3]):([0-5]\\d)$/, "Invalid time format (HH:MM)."),
-});
 
 export default function ScheduleFromTemplatePage() {
   const searchParams = useSearchParams();
@@ -48,6 +42,12 @@ export default function ScheduleFromTemplatePage() {
   const { toast } = useToast();
   const [contactSearchTerm, setContactSearchTerm] = useState('');
 
+  const formSchema = z.object({
+    contactIds: z.array(z.string()).nonempty({ message: tForm('selectContactsError') }),
+    scheduledAtDate: z.date({ required_error: tForm('dateError') }),
+    scheduledAtTime: z.string().regex(/^([01]\d|2[0-3])\s?:\s?([0-5]\d)$/, { message: tForm('timeError') }),
+  });
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -71,21 +71,10 @@ export default function ScheduleFromTemplatePage() {
   );
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    const validation = z.object({
-        contactIds: z.array(z.string()).nonempty({ message: tForm('selectContactsError') }),
-        scheduledAtDate: z.date({ required_error: tForm('dateError') }),
-        scheduledAtTime: z.string().regex(/^([01]\\d|2[0-3]):([0-5]\\d)$/, tForm('timeError')),
-    }).safeParse(values);
-
-    if (!validation.success || !template) {
-        form.setError('contactIds', { message: validation.error.formErrors.fieldErrors.contactIds?.join(', ') });
-        form.setError('scheduledAtDate', { message: validation.error.formErrors.fieldErrors.scheduledAtDate?.join(', ') });
-        form.setError('scheduledAtTime', { message: validation.error.formErrors.fieldErrors.scheduledAtTime?.join(', ') });
-        return;
-    }
+    if (!template) return;
 
     const { scheduledAtDate, scheduledAtTime, contactIds } = values;
-    const [hours, minutes] = scheduledAtTime.split(':').map(Number);
+    const [hours, minutes] = scheduledAtTime.replace(/\s/g, '').split(':').map(Number);
     const scheduledAt = new Date(scheduledAtDate);
     scheduledAt.setHours(hours, minutes);
 

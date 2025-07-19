@@ -24,19 +24,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
-import type { Contact, ScheduledMessage } from '@/lib/types';
+import type { ScheduledMessage } from '@/lib/types';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useTranslations } from 'next-intl';
 import { useData } from '@/lib/data-provider';
-
-const formSchema = z.object({
-  contactIds: z.array(z.string()).nonempty({ message: 'Please select at least one contact.' }),
-  content: z.string().min(10, 'Content must be at least 10 characters long.'),
-  scheduledAtDate: z.date({ required_error: "Please select a date." }),
-  scheduledAtTime: z.string().regex(/^([01]\\d|2[0-3]):([0-5]\\d)$/, "Invalid time format (HH:MM)."),
-});
 
 export default function EditScheduledMessagePage() {
   const params = useParams();
@@ -56,6 +49,13 @@ export default function EditScheduledMessagePage() {
   const { toast } = useToast();
   const [contactSearchTerm, setContactSearchTerm] = useState('');
 
+  const formSchema = z.object({
+    contactIds: z.array(z.string()).nonempty({ message: tForm('selectContactsError') }),
+    content: z.string().min(10, { message: tForm('contentError') }),
+    scheduledAtDate: z.date({ required_error: tForm('dateError') }),
+    scheduledAtTime: z.string().regex(/^([01]\d|2[0-3])\s?:\s?([0-5]\d)$/, { message: tForm('timeError') }),
+  });
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -91,23 +91,8 @@ export default function EditScheduledMessagePage() {
   };
   
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    const validation = z.object({
-        contactIds: z.array(z.string()).nonempty({ message: tForm('selectContactsError') }),
-        content: z.string().min(10, tForm('contentError')),
-        scheduledAtDate: z.date({ required_error: tForm('dateError') }),
-        scheduledAtTime: z.string().regex(/^([01]\\d|2[0-3]):([0-5]\\d)$/, tForm('timeError')),
-    }).safeParse(values);
-
-    if (!validation.success) {
-        form.setError('contactIds', { message: validation.error.formErrors.fieldErrors.contactIds?.join(', ') });
-        form.setError('content', { message: validation.error.formErrors.fieldErrors.content?.join(', ') });
-        form.setError('scheduledAtDate', { message: validation.error.formErrors.fieldErrors.scheduledAtDate?.join(', ') });
-        form.setError('scheduledAtTime', { message: validation.error.formErrors.fieldErrors.scheduledAtTime?.join(', ') });
-        return;
-    }
-
     const { scheduledAtDate, scheduledAtTime, contactIds, content } = values;
-    const [hours, minutes] = scheduledAtTime.split(':').map(Number);
+    const [hours, minutes] = scheduledAtTime.replace(/\s/g, '').split(':').map(Number);
     const scheduledAt = new Date(scheduledAtDate);
     scheduledAt.setHours(hours, minutes);
 
@@ -320,3 +305,4 @@ export default function EditScheduledMessagePage() {
     </div>
   );
 }
+
