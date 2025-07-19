@@ -49,6 +49,7 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { cn } from '@/lib/utils';
+import { LoginPage } from './login-page';
 
 const initialFolders: FolderType[] = [
   { id: '1', name: 'Marketing' },
@@ -57,14 +58,14 @@ const initialFolders: FolderType[] = [
 ];
 
 function FloatingSidebarTrigger() {
-    const { state, toggleSidebar } = useSidebar();
+    const { isMobile, toggleSidebar, openMobile } = useSidebar();
     
-    if (state === 'expanded') {
+    if (!isMobile || openMobile) {
         return null;
     }
     
     return (
-        <div className="fixed bottom-4 right-4 z-50 md:hidden">
+        <div className="fixed bottom-4 right-4 z-50">
              <Button
                 size="icon"
                 onClick={toggleSidebar}
@@ -131,12 +132,17 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const t = useTranslations('Sidebar');
   const tButtons = useTranslations('Buttons');
   const pathname = usePathname();
-  const loginPage = pathname.endsWith('/en') || pathname.endsWith('/pt-BR');
-
+  
   const [folders, setFolders] = useState<FolderType[]>(initialFolders);
   const [isFolderFormOpen, setIsFolderFormOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
   const [folderToDelete, setFolderToDelete] = useState<FolderType | null>(null);
+
+  const isLoginPage = pathname.endsWith('/en') || pathname.endsWith('/pt-BR') || pathname === '/';
+  
+  if (isLoginPage) {
+    return <LoginPage />;
+  }
 
   const handleSaveFolder = () => {
     if (newFolderName.trim()) {
