@@ -85,6 +85,7 @@ export default function EditScheduledMessagePage() {
   const tToast = useTranslations('Toast');
   const tContent = useTranslations('TemplateFormDialog');
   const tContacts = useTranslations('ScheduleFromTemplatePage');
+  const tGeneral = useTranslations('General');
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -149,7 +150,7 @@ export default function EditScheduledMessagePage() {
       <AppLayout>
         <div className="flex justify-center items-center h-full">
             <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
-            <p className="mt-4 text-muted-foreground">{useTranslations('General')('loading')}</p>
+            <p className="mt-4 text-muted-foreground">{tGeneral('loading')}</p>
         </div>
       </AppLayout>
     );

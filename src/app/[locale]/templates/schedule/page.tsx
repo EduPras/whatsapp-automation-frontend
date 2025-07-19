@@ -57,6 +57,7 @@ export default function ScheduleFromTemplatePage() {
   const t = useTranslations('ScheduleFromTemplatePage');
   const tForm = useTranslations('ScheduleForm');
   const tToast = useTranslations('Toast');
+  const tGeneral = useTranslations('General');
 
   useEffect(() => {
     if (templateId) {
@@ -106,7 +107,7 @@ export default function ScheduleFromTemplatePage() {
       <AppLayout>
         <div className="text-center">
             <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
-            <p className="mt-4 text-muted-foreground">{useTranslations('General')('loading')}</p>
+            <p className="mt-4 text-muted-foreground">{tGeneral('loading')}</p>
         </div>
       </AppLayout>
     );

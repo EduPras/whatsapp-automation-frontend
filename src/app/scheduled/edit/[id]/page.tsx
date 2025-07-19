@@ -1,95 +1,74 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { CalendarIcon, Clock, Send, Sparkles, Loader2, ArrowLeft, Users, Search } from 'lucide-react';
+import { CalendarIcon, Clock, Send, Loader2, Users, FileText, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription
 } from '@/components/ui/form';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
-import type { Contact, ScheduledMessage } from '@/lib/types';
-import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import { Checkbox } from '@/components/ui/checkbox';
+import type { Contact, Template } from '@/lib/types';
 import { useTranslations } from 'next-intl';
-
+import { AppLayout } from '@/components/app-layout';
 
 const initialContacts: Contact[] = [
   { id: '1', name: 'Alice Johnson', email: 'alice@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
   { id: '2', name: 'Bob Williams', email: 'bob@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
   { id: '3', name: 'Charlie Brown', email: 'charlie@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
+  { id: '4', name: 'Diana Prince', email: 'diana@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
 ];
 
-const initialScheduledMessages: ScheduledMessage[] = [
-  {
-    id: '1',
-    contacts: [initialContacts[0]],
-    content: 'Hi Alice, just a reminder about our meeting tomorrow at 10 AM. See you then!',
-    scheduledAt: new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
-    status: 'scheduled',
-  },
-  {
-    id: '2',
-    contacts: [initialContacts[1]],
-    content: 'Hey Bob, did you get a chance to look at the proposal? Let me know your thoughts.',
-    scheduledAt: new Date(new Date().getTime() + 2 * 24 * 60 * 60 * 1000),
-    status: 'scheduled',
-    templateId: '2',
-  },
-  {
-    id: '4',
-    contacts: [initialContacts[0], initialContacts[1], initialContacts[2]],
-    content: 'Hi team, project update meeting is scheduled for Friday. Please confirm your availability.',
-    scheduledAt: new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000),
-    status: 'scheduled',
-  },
+const initialTemplates: Template[] = [
+    { id: '1', title: 'Welcome Message', content: 'Hi {{client_name}}, welcome!', createdAt: new Date(), folder: 'General' },
+    { id: '2', title: 'Appointment Reminder', content: 'Reminder for {{appointment_time}}.', createdAt: new Date(), folder: 'Appointment Reminders' }
 ];
-
 
 const formSchema = z.object({
   contactIds: z.array(z.string()).nonempty({ message: 'Please select at least one contact.' }),
-  content: z.string().min(10, 'Content must be at least 10 characters long.'),
   scheduledAtDate: z.date({ required_error: "Please select a date." }),
-  scheduledAtTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:MM)."),
+  scheduledAtTime: z.string().regex(/^([01]\\d|2[0-3]):([0-5]\\d)$/, "Invalid time format (HH:MM)."),
 });
 
-export default function EditScheduledMessagePage() {
-  const params = useParams();
-  const id = params.id as string;
-  const [isAiLoading, setIsAiLoading] = useState(false);
-  const [message, setMessage] = useState<ScheduledMessage | null>(null);
+export default function ScheduleFromTemplatePage() {
+  const searchParams = useSearchParams();
+  const templateId = searchParams.get('templateId');
+  const [template, setTemplate] = useState<Template | null>(null);
   const [contacts] = useState<Contact[]>(initialContacts);
   const { toast } = useToast();
   const [contactSearchTerm, setContactSearchTerm] = useState('');
-  const t = useTranslations('EditScheduledMessagePage');
-  const tFreestyle = useTranslations('FreestyleMessagePage');
+  const t = useTranslations('ScheduleFromTemplatePage');
   const tForm = useTranslations('ScheduleForm');
   const tToast = useTranslations('Toast');
-  const tContent = useTranslations('TemplateFormDialog');
-  const tContacts = useTranslations('ScheduleFromTemplatePage');
+  const tGeneral = useTranslations('General');
 
+  useEffect(() => {
+    if (templateId) {
+      const foundTemplate = initialTemplates.find(t => t.id === templateId);
+      setTemplate(foundTemplate || null);
+    }
+  }, [templateId]);
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       contactIds: [],
-      content: '',
       scheduledAtTime: '09:00',
     },
   });
@@ -100,37 +79,16 @@ export default function EditScheduledMessagePage() {
     contact.name.toLowerCase().includes(contactSearchTerm.toLowerCase())
   );
 
-  useEffect(() => {
-    if (id) {
-        const messageToEdit = initialScheduledMessages.find(m => m.id === id);
-        if (messageToEdit) {
-            setMessage(messageToEdit);
-            form.reset({
-                contactIds: messageToEdit.contacts.map(c => c.id),
-                content: messageToEdit.content,
-                scheduledAtDate: messageToEdit.scheduledAt,
-                scheduledAtTime: format(messageToEdit.scheduledAt, 'HH:mm'),
-            });
-        }
-    }
-  }, [id, form]);
-
-  const handleAiEnrich = async () => {
-    toast({ title: "AI enrichment coming soon!" });
-  };
-  
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     // Override zod validation messages with translated ones
     const validation = z.object({
         contactIds: z.array(z.string()).nonempty({ message: tForm('selectContactsError') }),
-        content: z.string().min(10, tForm('contentError')),
         scheduledAtDate: z.date({ required_error: tForm('dateError') }),
-        scheduledAtTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, tForm('timeError')),
+        scheduledAtTime: z.string().regex(/^([01]\\d|2[0-3]):([0-5]\\d)$/, tForm('timeError')),
     }).safeParse(values);
 
     if (!validation.success) {
         form.setError('contactIds', { message: validation.error.formErrors.fieldErrors.contactIds?.join(', ') });
-        form.setError('content', { message: validation.error.formErrors.fieldErrors.content?.join(', ') });
         form.setError('scheduledAtDate', { message: validation.error.formErrors.fieldErrors.scheduledAtDate?.join(', ') });
         form.setError('scheduledAtTime', { message: validation.error.formErrors.fieldErrors.scheduledAtTime?.join(', ') });
         return;
@@ -138,65 +96,70 @@ export default function EditScheduledMessagePage() {
 
     console.log(values);
     toast({
-      title: tToast('messageUpdated'),
-      description: tToast('messageUpdatedDescription'),
+      title: tToast('messageScheduled'),
+      description: tToast('messageScheduledDescription', { count: values.contactIds.length }),
     });
   };
 
-  if (!message) {
+  if (!template) {
     return (
-        <div className="flex justify-center items-center h-full">
+      <AppLayout>
+        <div className="text-center">
             <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
-            <p className="mt-4 text-muted-foreground">{useTranslations('General')('loading')}</p>
+            <p className="mt-4 text-muted-foreground">{tGeneral('loading')}</p>
         </div>
+      </AppLayout>
     );
   }
 
   return (
-    <div>
-       <div className="mb-8">
-        <Button asChild variant="outline" size="sm">
-            <Link href="/scheduled">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                {tFreestyle('backToScheduled')}
-            </Link>
-        </Button>
-      </div>
-
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold font-headline tracking-tight text-center">
-          {t('title')}
-        </h1>
-        <div/>
-      </div>
+    <AppLayout>
+      <div>
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-2xl font-bold font-headline tracking-tight text-center">
+            {t('title')}
+          </h1>
+          <div/>
+        </div>
 
         <Card>
             <CardHeader>
-                <CardTitle>{tFreestyle('composeTitle')}</CardTitle>
-                <CardDescription>{t('composeDescription')}</CardDescription>
+                <CardTitle className="flex items-center gap-2"><FileText className="h-5 w-5 text-primary"/> {template.title}</CardTitle>
+                <CardDescription>{t('description')}</CardDescription>
             </CardHeader>
             <CardContent>
-                 <Form {...form}>
+                  <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                        <FormField
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>{t('templateContent')}</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="p-4 border rounded-md bg-secondary/50">
+                                    <p className="text-sm text-secondary-foreground whitespace-pre-wrap">{template.content}</p>
+
+                                </div>
+                            </CardContent>
+                        </Card>
+                          <FormField
                             control={form.control}
                             name="contactIds"
                             render={() => (
                                 <FormItem>
                                     <div className="mb-4">
-                                        <FormLabel className="text-base flex items-center gap-2"><Users/> {tContacts('contactsLabel')}</FormLabel>
+                                        <FormLabel className="text-base">{t('contactsLabel')}</FormLabel>
                                         <FormDescription>
-                                        {tContacts('contactsDescription')}
+                                        {t('contactsDescription')}
                                         </FormDescription>
                                     </div>
                                     <div className="relative mb-2">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                        <Input 
-                                            placeholder={tForm('searchContactsPlaceholder')}
-                                            className="pl-10" 
-                                            value={contactSearchTerm}
-                                            onChange={(e) => setContactSearchTerm(e.target.value)}
-                                        />
+                                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                      <Input 
+                                          placeholder={tForm('searchContactsPlaceholder')} 
+                                          className="pl-10" 
+                                          value={contactSearchTerm}
+                                          onChange={(e) => setContactSearchTerm(e.target.value)}
+                                      />
                                     </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-h-60 overflow-y-auto p-2 border rounded-md">
                                     {filteredContacts.map((item) => (
@@ -236,35 +199,8 @@ export default function EditScheduledMessagePage() {
                                     <FormMessage />
                                 </FormItem>
                             )}
-                        />
+                            />
 
-                         <FormField
-                            control={form.control}
-                            name="content"
-                            render={({ field }) => (
-                                <FormItem>
-                                <div className="flex justify-between items-center">
-                                    <FormLabel>{tContent('contentLabel')}</FormLabel>
-                                    <Button type="button" variant="ghost" size="sm" onClick={handleAiEnrich} disabled={isAiLoading}>
-                                    {isAiLoading ? (
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    ) : (
-                                        <Sparkles className="mr-2 h-4 w-4" />
-                                    )}
-                                    {tContent('enrichWithAI')}
-                                    </Button>
-                                </div>
-                                <FormControl>
-                                    <Textarea
-                                    placeholder={tContent('contentPlaceholder')}
-                                    className="min-h-[150px] resize-y"
-                                    {...field}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormField
                                 control={form.control}
@@ -307,14 +243,14 @@ export default function EditScheduledMessagePage() {
                                     </FormItem>
                                 )}
                             />
-                             <FormField
+                              <FormField
                                 control={form.control}
                                 name="scheduledAtTime"
                                 render={({ field }) => (
                                     <FormItem>
                                     <FormLabel>{tForm('timeLabel')}</FormLabel>
                                     <FormControl>
-                                         <div className="relative">
+                                          <div className="relative">
                                             <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                             <Input type="time" className="pl-10" {...field} />
                                         </div>
@@ -325,14 +261,15 @@ export default function EditScheduledMessagePage() {
                             />
                         </div>
 
-                         <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={selectedContactsCount === 0}>
+                          <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={selectedContactsCount === 0}>
                             <Send className="mr-2 h-4 w-4" />
-                            {t('updateMessage')}
+                            {t('scheduleForContacts', {count: selectedContactsCount})}
                         </Button>
                     </form>
                 </Form>
             </CardContent>
         </Card>
-    </div>
+      </div>
+    </AppLayout>
   );
 }
