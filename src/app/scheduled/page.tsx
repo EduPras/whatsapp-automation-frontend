@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -64,7 +65,7 @@ export default function ScheduledMessagesPage() {
   const sentMessages = messages.filter(m => m.status === 'sent');
 
   return (
-    <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+    <div>
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold font-headline tracking-tight flex items-center gap-2">
           Scheduled Messages
@@ -82,7 +83,7 @@ export default function ScheduledMessagesPage() {
             Upcoming <Badge variant="secondary" className="ml-2">{upcomingMessages.length}</Badge>
         </h2>
         {upcomingMessages.length > 0 ? (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {upcomingMessages.map(msg => <ScheduledMessageCard key={msg.id} message={msg} onDelete={() => setMessageToDelete(msg.id)} />)}
             </div>
         ) : (
@@ -101,7 +102,7 @@ export default function ScheduledMessagesPage() {
             Sent <Badge variant="secondary" className="ml-2">{sentMessages.length}</Badge>
         </h2>
         {sentMessages.length > 0 ? (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {sentMessages.map(msg => <ScheduledMessageCard key={msg.id} message={msg} onDelete={() => {}} />)}
             </div>
         ) : (
