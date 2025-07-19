@@ -46,87 +46,15 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Input } from '@/components/ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { LoginPage } from './login-page';
+import { Header } from './header';
 
 const initialFolders: FolderType[] = [
   { id: '1', name: 'Marketing' },
   { id: '2', name: 'Appointment Reminders' },
   { id: '3', name: 'General' },
 ];
-
-function FloatingSidebarTrigger() {
-    const { isMobile, toggleSidebar, openMobile } = useSidebar();
-    
-    if (!isMobile || openMobile) {
-        return null;
-    }
-    
-    return (
-        <div className="fixed bottom-4 right-4 z-50">
-             <Button
-                size="icon"
-                onClick={toggleSidebar}
-                className="rounded-full shadow-lg bg-primary text-primary-foreground hover:bg-primary/90"
-                aria-label="Toggle Sidebar"
-            >
-                <PanelLeft />
-            </Button>
-        </div>
-    )
-}
-
-function UserProfile() {
-  const tHeader = useTranslations('Header');
-  const { state } = useSidebar();
-  
-  return (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-            <button className={cn(
-              "flex items-center w-full gap-2 p-2 rounded-md transition-colors hover:bg-sidebar-accent",
-               state === 'collapsed' && 'justify-center p-0 h-10 w-10'
-            )}>
-              <Avatar className="h-8 w-8">
-                <AvatarImage src="https://placehold.co/40x40.png" alt={tHeader('user')} data-ai-hint="user avatar" />
-                <AvatarFallback>U</AvatarFallback>
-              </Avatar>
-              <div className={cn("flex flex-col items-start truncate", state === 'collapsed' && 'hidden')}>
-                  <span className="text-sm font-medium text-sidebar-foreground">{tHeader('user')}</span>
-                  <span className="text-xs text-muted-foreground truncate">user@example.com</span>
-              </div>
-            </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56 mb-2" side="top" align="start" forceMount>
-          <DropdownMenuLabel className="font-normal">
-            <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">{tHeader('user')}</p>
-              <p className="text-xs leading-none text-muted-foreground">
-                user@example.com
-              </p>
-            </div>
-          </DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem asChild>
-            <Link href="/settings">
-              <Settings className="mr-2 h-4 w-4" />
-              <span>{tHeader('settings')}</span>
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem asChild>
-            <Link href="/">
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>{tHeader('logout')}</span>
-            </Link>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-  );
-}
-
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const t = useTranslations('Sidebar');
@@ -173,7 +101,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                   <MessageSquareText className="h-6 w-6 text-primary" />
                   <span className="font-semibold font-headline">{t('appName')}</span>
                </div>
-                <SidebarTrigger />
+                <SidebarTrigger className="hidden xl:flex"/>
              </div>
           </SidebarHeader>
           <SidebarContent>
@@ -249,18 +177,15 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               </SidebarGroupContent>
             </SidebarGroup>
           </SidebarContent>
-           <SidebarFooter>
-              <UserProfile />
-          </SidebarFooter>
         </Sidebar>
 
         <div className="flex flex-col flex-1">
+          <Header />
           <main className="flex-1 p-4 md:p-8 overflow-y-auto">
             {children}
           </main>
           <Toaster />
         </div>
-        <FloatingSidebarTrigger />
       </div>
 
       <Dialog open={isFolderFormOpen} onOpenChange={setIsFolderFormOpen}>
