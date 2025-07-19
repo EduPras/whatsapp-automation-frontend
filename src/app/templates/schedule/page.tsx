@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { CalendarIcon, Clock, Send, Loader2, Users, FileText } from 'lucide-react';
+import { CalendarIcon, Clock, Send, Loader2, Users, FileText, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -53,6 +53,7 @@ export default function ScheduleFromTemplatePage() {
   const [template, setTemplate] = useState<Template | null>(null);
   const [contacts] = useState<Contact[]>(initialContacts);
   const { toast } = useToast();
+  const [contactSearchTerm, setContactSearchTerm] = useState('');
 
   useEffect(() => {
     if (templateId) {
@@ -68,6 +69,10 @@ export default function ScheduleFromTemplatePage() {
       scheduledAtTime: '09:00',
     },
   });
+
+  const filteredContacts = contacts.filter(contact =>
+    contact.name.toLowerCase().includes(contactSearchTerm.toLowerCase())
+  );
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     console.log(values);
@@ -125,8 +130,17 @@ export default function ScheduleFromTemplatePage() {
                                       Select the contacts to send this message to.
                                       </FormDescription>
                                   </div>
+                                  <div className="relative mb-2">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                    <Input 
+                                        placeholder="Search contacts..." 
+                                        className="pl-10" 
+                                        value={contactSearchTerm}
+                                        onChange={(e) => setContactSearchTerm(e.target.value)}
+                                    />
+                                  </div>
                                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-h-60 overflow-y-auto p-2 border rounded-md">
-                                  {contacts.map((item) => (
+                                  {filteredContacts.map((item) => (
                                       <FormField
                                       key={item.id}
                                       control={form.control}
