@@ -87,7 +87,7 @@ export default function ScheduleFromTemplatePage() {
   }
 
   return (
-    <div className="p-8">
+    <div>
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-bold font-headline tracking-tight text-center">
           Schedule from Template
@@ -95,7 +95,7 @@ export default function ScheduleFromTemplatePage() {
         <div/>
       </div>
 
-      <Card className="max-w-3xl mx-auto">
+      <Card>
           <CardHeader>
               <CardTitle className="flex items-center gap-2"><FileText className="h-5 w-5 text-primary"/> {template.title}</CardTitle>
               <CardDescription>Schedule this message to be sent to multiple contacts.</CardDescription>

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -122,7 +123,7 @@ export default function EditScheduledMessagePage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div>
        <div className="mb-8">
         <Button asChild variant="outline" size="sm">
             <Link href="/scheduled">
