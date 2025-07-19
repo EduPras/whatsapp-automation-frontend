@@ -1,7 +1,7 @@
 
 "use client";
 
-import { CalendarClock, Inbox, MessageSquareText, FolderPlus, Folder, Trash2, CalendarCheck } from "lucide-react";
+import { CalendarClock, Inbox, MessageSquareText, FolderPlus, Folder, Trash2, CalendarCheck, Settings } from "lucide-react";
 import Link from "next/link";
 import { Header } from '@/components/header';
 import { Toaster } from "@/components/ui/toaster";
@@ -104,6 +104,14 @@ export default function AppLayout({
                    <Link href="/scheduled">
                     <CalendarClock />
                     Scheduled
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild tooltip="Settings">
+                   <Link href="/settings">
+                    <Settings />
+                    Settings
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
