@@ -191,7 +191,7 @@ export default function FreestyleSchedulePage() {
                               control={form.control}
                               name="scheduledAtDate"
                               render={({ field }) => (
-                                  <FormItem className="flex flex-col">
+                                  <FormItem>
                                   <FormLabel>Schedule Date</FormLabel>
                                   <Popover>
                                       <PopoverTrigger asChild>
