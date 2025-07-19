@@ -264,13 +264,12 @@ function AppLayout({ children, locale }: { children: React.ReactNode; locale: st
 
 export default function LocaleLayout({
   children,
-  params
+  params: { locale }
 }: Readonly<{
   children: React.ReactNode;
   params: { locale: string };
 }>) {
   const messages = useMessages();
-  const locale = params.locale;
   
   return (
     <html lang={locale}>
