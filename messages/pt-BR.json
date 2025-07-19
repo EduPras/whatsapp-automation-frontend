@@ -1,0 +1,147 @@
+
+{
+  "LoginPage": {
+    "title": "Bem-vindo de Volta",
+    "description": "Faça login para gerenciar seus modelos de mensagem.",
+    "signInWithGoogle": "Entrar com o Google",
+    "terms": "Ao continuar, você concorda com nossos Termos de Serviço e Política de Privacidade.",
+    "copyright": "© {year} Scheduled Messenger. Todos os direitos reservados."
+  },
+  "Sidebar": {
+    "appName": "Scheduled Messenger",
+    "templates": "Modelos",
+    "scheduled": "Agendadas",
+    "settings": "Configurações",
+    "folders": "Pastas",
+    "allTemplates": "Todos os Modelos",
+    "appointmentReminders": "Lembretes de Consulta",
+    "createNewFolder": "Criar Nova Pasta",
+    "folderNamePlaceholder": "Nome da pasta",
+    "folderNameDescription": "Digite um nome para sua nova pasta.",
+    "deleteFolderTitle": "Você tem certeza?",
+    "deleteFolderDescription": "Esta ação não pode ser desfeita. Isso excluirá permanentemente a pasta \"{folderName}\". Quaisquer modelos dentro dela não serão mais atribuídos a esta pasta.",
+    "deleteFolderAction": "Excluir Pasta"
+  },
+  "Header": {
+    "user": "Usuário",
+    "settings": "Configurações",
+    "logout": "Sair"
+  },
+  "Buttons": {
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "schedule": "Agendar"
+  },
+  "TemplatesPage": {
+    "createTemplate": "Criar Modelo",
+    "noTemplatesInFolder": "Nenhum modelo nesta pasta",
+    "getStarted": "Comece criando um novo modelo de mensagem.",
+    "deleteTemplateTitle": "Você tem certeza?",
+    "deleteTemplateDescription": "Esta ação não pode ser desfeita. Isso excluirá permanentemente o modelo."
+  },
+  "TemplateCard": {
+    "created": "Criado {timeAgo}",
+    "schedule": "Agendar"
+  },
+  "TemplateFormDialog": {
+    "editTemplate": "Editar Modelo",
+    "createTemplate": "Criar Novo Modelo",
+    "editDescription": "Faça alterações no seu modelo.",
+    "createDescription": "Preencha os detalhes para criar um novo modelo de mensagem.",
+    "titleLabel": "Título",
+    "titlePlaceholder": "ex: Mensagem de Boas-vindas",
+    "titleError": "O título deve ter pelo menos 3 caracteres.",
+    "folderLabel": "Pasta",
+    "folderPlaceholder": "Selecione uma pasta",
+    "folderError": "Por favor, selecione uma pasta.",
+    "contentLabel": "Conteúdo",
+    "enrichWithAI": "Enriquecer com IA",
+    "contentPlaceholder": "Escreva sua mensagem aqui. Use {{variable}} para placeholders.",
+    "contentError": "O conteúdo deve ter pelo menos 10 caracteres.",
+    "preview": "Pré-visualização da Mensagem",
+    "previewPlaceholder": "Sua mensagem aparecerá aqui...",
+    "saveTemplate": "Salvar Modelo",
+    "aiEnrichEmptyError": "Por favor, escreva algum conteúdo antes de usar o enriquecimento por IA."
+  },
+  "ScheduleFromTemplatePage": {
+    "title": "Agendar a partir de Modelo",
+    "description": "Agende esta mensagem para ser enviada a múltiplos contatos.",
+    "templateContent": "Conteúdo do Modelo",
+    "contactsLabel": "Contatos",
+    "contactsDescription": "Selecione os contatos para os quais esta mensagem será enviada.",
+    "scheduleForContacts": "Agendar para {count} contatos"
+  },
+  "ScheduledPage": {
+    "title": "Mensagens Agendadas",
+    "searchPlaceholder": "Buscar mensagens...",
+    "scheduleAction": "Agendar",
+    "upcoming": "Próximas",
+    "sent": "Enviadas",
+    "contactsHeader": "Contato(s)",
+    "contentHeader": "Conteúdo",
+    "scheduledAtHeader": "Agendado para",
+    "sentAtHeader": "Enviado em",
+    "templateHeader": "Modelo",
+    "actionsHeader": "Ações",
+    "groupMessage": "Mensagem em Grupo",
+    "recipients": "{count} destinatários",
+    "manual": "Manual",
+    "noUpcomingMessages": "Nenhuma mensagem futura",
+    "noUpcomingMessagesDescription": "Agende uma nova mensagem para começar.",
+    "noUpcomingMessagesSearch": "Nenhum resultado encontrado para \"{searchTerm}\".",
+    "noSentMessages": "Nenhuma mensagem enviada ainda",
+    "noSentMessagesDescription": "Suas mensagens enviadas aparecerão aqui.",
+    "noSentMessagesSearch": "Nenhum resultado encontrado para \"{searchTerm}\".",
+    "deleteMessageTitle": "Você tem certeza?",
+    "deleteMessageDescription": "Esta ação não pode ser desfeita. Isso excluirá permanentemente a mensagem agendada."
+  },
+  "FreestyleMessagePage": {
+    "title": "Mensagem Avulsa",
+    "backToScheduled": "Voltar para Agendadas",
+    "composeTitle": "Compor Mensagem",
+    "composeDescription": "Agende uma mensagem pessoal para um ou mais contatos.",
+    "scheduleMessage": "Agendar Mensagem",
+    "scheduleForContacts": "Agendar Mensagem para {count} contato(s)"
+  },
+  "EditScheduledMessagePage": {
+    "title": "Editar Mensagem Agendada",
+    "composeDescription": "Atualize os detalhes da sua mensagem agendada.",
+    "updateMessage": "Atualizar Mensagem"
+  },
+  "ScheduleForm": {
+    "selectContactsError": "Por favor, selecione pelo menos um contato.",
+    "contentError": "O conteúdo deve ter pelo menos 10 caracteres.",
+    "dateError": "Por favor, selecione uma data.",
+    "timeError": "Formato de hora inválido (HH:MM).",
+    "dateLabel": "Data do Agendamento",
+    "timeLabel": "Hora do Agendamento",
+    "datePlaceholder": "Escolha uma data",
+    "searchContactsPlaceholder": "Buscar contatos..."
+  },
+  "SettingsPage": {
+    "title": "Configurações",
+    "remindersTitle": "Lembretes de Consulta",
+    "remindersDescription": "Configure mensagens automáticas para consultas futuras. Estas configurações se aplicarão a todos os lembretes enviados a partir do modelo \"Lembretes de Consulta\".",
+    "enableLabel": "Ativar Lembretes de Consulta",
+    "enableDescription": "Enviar lembretes automaticamente para consultas agendadas.",
+    "sendBeforeLabel": "Enviar Lembrete Antes da Consulta",
+    "sendBeforeUnit": "horas",
+    "sendBeforeDescription": "Defina quantas horas antes do horário agendado o lembrete deve ser enviado.",
+    "saveChanges": "Salvar Alterações"
+  },
+  "Toast": {
+    "settingsSaved": "Configurações Salvas",
+    "settingsSavedDescription": "Suas configurações de lembrete de consulta foram atualizadas.",
+    "messageScheduled": "Mensagem Agendada!",
+    "messageScheduledDescription": "Sua mensagem foi agendada para {count} contatos.",
+    "messageUpdated": "Mensagem Atualizada!",
+    "messageUpdatedDescription": "Sua mensagem foi atualizada.",
+    "aiEnrichFailed": "Falha no enriquecimento por IA",
+    "aiEnrichFailedDescription": "Não foi possível enriquecer o conteúdo. Por favor, tente novamente."
+  },
+  "General": {
+    "loading": "Carregando..."
+  }
+}

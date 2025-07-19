@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu"
+import { useTranslations } from 'next-intl';
 
 interface TemplateCardProps {
   template: Template;
@@ -19,13 +20,16 @@ interface TemplateCardProps {
 }
 
 export function TemplateCard({ template, onEdit, onDelete }: TemplateCardProps) {
+  const t = useTranslations('TemplateCard');
+  const tButtons = useTranslations('Buttons');
+  
   return (
     <Card className="flex flex-col transition-all hover:shadow-lg">
        <CardHeader className="flex flex-row items-start justify-between">
         <div>
             <CardTitle className="font-headline">{template.title}</CardTitle>
             <CardDescription>
-            Created {formatDistanceToNow(template.createdAt, { addSuffix: true })}
+            {t('created', {timeAgo: formatDistanceToNow(template.createdAt, { addSuffix: true })})}
             </CardDescription>
         </div>
         <DropdownMenu>
@@ -37,18 +41,18 @@ export function TemplateCard({ template, onEdit, onDelete }: TemplateCardProps) 
             <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => onEdit(template)}>
                     <Pencil className="mr-2 h-4 w-4" />
-                    Edit
+                    {tButtons('edit')}
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                     <Link href={`/templates/schedule?templateId=${template.id}`}>
                         <Send className="mr-2 h-4 w-4" />
-                        Schedule
+                        {tButtons('schedule')}
                     </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => onDelete(template.id)} className="text-destructive">
                     <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
+                    {tButtons('delete')}
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
@@ -60,7 +64,7 @@ export function TemplateCard({ template, onEdit, onDelete }: TemplateCardProps) 
          <Button asChild size="sm" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
             <Link href={`/templates/schedule?templateId=${template.id}`}>
                 <Send className="mr-2 h-4 w-4" />
-                Schedule
+                {t('schedule')}
             </Link>
         </Button>
       </CardFooter>

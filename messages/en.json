@@ -1,0 +1,147 @@
+
+{
+  "LoginPage": {
+    "title": "Welcome Back",
+    "description": "Sign in to manage your message templates.",
+    "signInWithGoogle": "Sign in with Google",
+    "terms": "By continuing, you agree to our Terms of Service and Privacy Policy.",
+    "copyright": "© {year} Scheduled Messenger. All Rights Reserved."
+  },
+  "Sidebar": {
+    "appName": "Scheduled Messenger",
+    "templates": "Templates",
+    "scheduled": "Scheduled",
+    "settings": "Settings",
+    "folders": "Folders",
+    "allTemplates": "All Templates",
+    "appointmentReminders": "Appointment Reminders",
+    "createNewFolder": "Create New Folder",
+    "folderNamePlaceholder": "Folder name",
+    "folderNameDescription": "Enter a name for your new folder.",
+    "deleteFolderTitle": "Are you sure?",
+    "deleteFolderDescription": "This action cannot be undone. This will permanently delete the folder \"{folderName}\". Any templates inside will be unassigned from this folder.",
+    "deleteFolderAction": "Delete Folder"
+  },
+  "Header": {
+    "user": "User",
+    "settings": "Settings",
+    "logout": "Log out"
+  },
+  "Buttons": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "schedule": "Schedule"
+  },
+  "TemplatesPage": {
+    "createTemplate": "Create Template",
+    "noTemplatesInFolder": "No templates in this folder",
+    "getStarted": "Get started by creating a new message template.",
+    "deleteTemplateTitle": "Are you sure?",
+    "deleteTemplateDescription": "This action cannot be undone. This will permanently delete the template."
+  },
+  "TemplateCard": {
+    "created": "Created {timeAgo}",
+    "schedule": "Schedule"
+  },
+  "TemplateFormDialog": {
+    "editTemplate": "Edit Template",
+    "createTemplate": "Create New Template",
+    "editDescription": "Make changes to your template.",
+    "createDescription": "Fill in the details to create a new message template.",
+    "titleLabel": "Title",
+    "titlePlaceholder": "e.g., Welcome Message",
+    "titleError": "Title must be at least 3 characters long.",
+    "folderLabel": "Folder",
+    "folderPlaceholder": "Select a folder",
+    "folderError": "Please select a folder.",
+    "contentLabel": "Content",
+    "enrichWithAI": "Enrich with AI",
+    "contentPlaceholder": "Write your message here. Use {{variable}} for placeholders.",
+    "contentError": "Content must be at least 10 characters long.",
+    "preview": "Message Preview",
+    "previewPlaceholder": "Your message will appear here...",
+    "saveTemplate": "Save Template",
+    "aiEnrichEmptyError": "Please write some content before using AI enrichment."
+  },
+  "ScheduleFromTemplatePage": {
+    "title": "Schedule from Template",
+    "description": "Schedule this message to be sent to multiple contacts.",
+    "templateContent": "Template Content",
+    "contactsLabel": "Contacts",
+    "contactsDescription": "Select the contacts to send this message to.",
+    "scheduleForContacts": "Schedule for {count} contacts"
+  },
+  "ScheduledPage": {
+    "title": "Scheduled Messages",
+    "searchPlaceholder": "Search messages...",
+    "scheduleAction": "Schedule",
+    "upcoming": "Upcoming",
+    "sent": "Sent",
+    "contactsHeader": "Contact(s)",
+    "contentHeader": "Content",
+    "scheduledAtHeader": "Scheduled At",
+    "sentAtHeader": "Sent At",
+    "templateHeader": "Template",
+    "actionsHeader": "Actions",
+    "groupMessage": "Group Message",
+    "recipients": "{count} recipients",
+    "manual": "Manual",
+    "noUpcomingMessages": "No upcoming messages",
+    "noUpcomingMessagesDescription": "Schedule a new message to get started.",
+    "noUpcomingMessagesSearch": "No results found for \"{searchTerm}\".",
+    "noSentMessages": "No sent messages yet",
+    "noSentMessagesDescription": "Your sent messages will appear here.",
+    "noSentMessagesSearch": "No results found for \"{searchTerm}\".",
+    "deleteMessageTitle": "Are you sure?",
+    "deleteMessageDescription": "This action cannot be undone. This will permanently delete the scheduled message."
+  },
+  "FreestyleMessagePage": {
+    "title": "Freestyle Message",
+    "backToScheduled": "Back to Scheduled",
+    "composeTitle": "Compose Message",
+    "composeDescription": "Schedule a personal message for one or more contacts.",
+    "scheduleMessage": "Schedule Message",
+    "scheduleForContacts": "Schedule Message for {count} contact(s)"
+  },
+  "EditScheduledMessagePage": {
+    "title": "Edit Scheduled Message",
+    "composeDescription": "Update the details for your scheduled message.",
+    "updateMessage": "Update Message"
+  },
+  "ScheduleForm": {
+    "selectContactsError": "Please select at least one contact.",
+    "contentError": "Content must be at least 10 characters long.",
+    "dateError": "Please select a date.",
+    "timeError": "Invalid time format (HH:MM).",
+    "dateLabel": "Schedule Date",
+    "timeLabel": "Schedule Time",
+    "datePlaceholder": "Pick a date",
+    "searchContactsPlaceholder": "Search contacts..."
+  },
+  "SettingsPage": {
+    "title": "Settings",
+    "remindersTitle": "Appointment Reminders",
+    "remindersDescription": "Configure automated messages for upcoming appointments. These settings will apply to all reminders sent from the \"Appointment Reminders\" template.",
+    "enableLabel": "Enable Appointment Reminders",
+    "enableDescription": "Automatically send reminders for scheduled appointments.",
+    "sendBeforeLabel": "Send Reminder Before Appointment",
+    "sendBeforeUnit": "hours",
+    "sendBeforeDescription": "Define how many hours before the scheduled time the reminder should be sent.",
+    "saveChanges": "Save Changes"
+  },
+  "Toast": {
+    "settingsSaved": "Settings Saved",
+    "settingsSavedDescription": "Your appointment reminder settings have been updated.",
+    "messageScheduled": "Message Scheduled!",
+    "messageScheduledDescription": "Your message has been scheduled for {count} contacts.",
+    "messageUpdated": "Message Updated!",
+    "messageUpdatedDescription": "Your message has been updated.",
+    "aiEnrichFailed": "AI enrichment failed",
+    "aiEnrichFailedDescription": "Could not enrich content. Please try again."
+  },
+  "General": {
+    "loading": "Loading..."
+  }
+}
