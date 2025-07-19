@@ -79,7 +79,7 @@ export default function ScheduleFromTemplatePage() {
 
   if (!template) {
     return (
-        <div className="container mx-auto px-4 py-8 text-center">
+        <div className="text-center">
             <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
             <p className="mt-4 text-muted-foreground">Loading template...</p>
         </div>
@@ -87,7 +87,7 @@ export default function ScheduleFromTemplatePage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="p-8">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-bold font-headline tracking-tight text-center">
           Schedule from Template
@@ -95,7 +95,7 @@ export default function ScheduleFromTemplatePage() {
         <div/>
       </div>
 
-      <Card>
+      <Card className="max-w-3xl mx-auto">
           <CardHeader>
               <CardTitle className="flex items-center gap-2"><FileText className="h-5 w-5 text-primary"/> {template.title}</CardTitle>
               <CardDescription>Schedule this message to be sent to multiple contacts.</CardDescription>
