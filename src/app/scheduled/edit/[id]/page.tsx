@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -27,6 +26,9 @@ import { useToast } from "@/hooks/use-toast";
 import type { Contact, ScheduledMessage } from '@/lib/types';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { Checkbox } from '@/components/ui/checkbox';
+import { FormDescription } from '@/components/ui/form';
+
 
 const initialContacts: Contact[] = [
   { id: '1', name: 'Alice Johnson', email: 'alice@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
@@ -61,7 +63,7 @@ const initialScheduledMessages: ScheduledMessage[] = [
 
 
 const formSchema = z.object({
-  contactIds: z.array(z.string()).nonempty(),
+  contactIds: z.array(z.string()).nonempty({ message: 'Please select at least one contact.' }),
   content: z.string().min(10, 'Content must be at least 10 characters long.'),
   scheduledAtDate: z.date({ required_error: "Please select a date." }),
   scheduledAtTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:MM)."),
@@ -72,6 +74,7 @@ export default function EditScheduledMessagePage() {
   const id = params.id as string;
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [message, setMessage] = useState<ScheduledMessage | null>(null);
+  const [contacts] = useState<Contact[]>(initialContacts);
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -82,6 +85,8 @@ export default function EditScheduledMessagePage() {
       scheduledAtTime: '09:00',
     },
   });
+  
+  const selectedContactsCount = form.watch('contactIds').length;
 
   useEffect(() => {
     if (id) {
@@ -119,8 +124,6 @@ export default function EditScheduledMessagePage() {
     );
   }
 
-  const isGroupMessage = message.contacts.length > 1;
-
   return (
     <div>
        <div className="mb-8">
@@ -147,24 +150,56 @@ export default function EditScheduledMessagePage() {
             <CardContent>
                  <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                        <FormItem>
-                            <FormLabel>Contact(s)</FormLabel>
-                            <FormControl>
-                                <div className="p-3 border rounded-md bg-secondary/50 flex items-center gap-2">
-                                    {isGroupMessage ? (
-                                        <>
-                                            <Users className="h-5 w-5 text-muted-foreground"/>
-                                            <span className="text-sm font-medium">Group Message ({message.contacts.length} recipients)</span>
-                                        </>
-                                    ) : (
-                                        <span className="text-sm font-medium">{message.contacts[0]?.name || 'N/A'}</span>
-                                    )}
-                                </div>
-                            </FormControl>
-                            <FormDescription>
-                                {isGroupMessage ? "Editing recipients for a group message is not currently supported." : ""}
-                            </FormDescription>
-                        </FormItem>
+                        <FormField
+                            control={form.control}
+                            name="contactIds"
+                            render={() => (
+                                <FormItem>
+                                    <div className="mb-4">
+                                        <FormLabel className="text-base flex items-center gap-2"><Users/> Contacts</FormLabel>
+                                        <FormDescription>
+                                        Select the contacts to send this message to.
+                                        </FormDescription>
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-h-60 overflow-y-auto p-2 border rounded-md">
+                                    {contacts.map((item) => (
+                                        <FormField
+                                        key={item.id}
+                                        control={form.control}
+                                        name="contactIds"
+                                        render={({ field }) => {
+                                            return (
+                                            <FormItem
+                                                key={item.id}
+                                                className="flex flex-row items-start space-x-3 space-y-0"
+                                            >
+                                                <FormControl>
+                                                <Checkbox
+                                                    checked={field.value?.includes(item.id)}
+                                                    onCheckedChange={(checked) => {
+                                                    return checked
+                                                        ? field.onChange([...(field.value || []), item.id])
+                                                        : field.onChange(
+                                                            field.value?.filter(
+                                                            (value) => value !== item.id
+                                                            )
+                                                        )
+                                                    }}
+                                                />
+                                                </FormControl>
+                                                <FormLabel className="font-normal">
+                                                {item.name}
+                                                </FormLabel>
+                                            </FormItem>
+                                            )
+                                        }}
+                                        />
+                                    ))}
+                                    </div>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
                          <FormField
                             control={form.control}
@@ -253,7 +288,7 @@ export default function EditScheduledMessagePage() {
                             />
                         </div>
 
-                         <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
+                         <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={selectedContactsCount === 0}>
                             <Send className="mr-2 h-4 w-4" />
                             Update Message
                         </Button>
