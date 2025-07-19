@@ -26,42 +26,10 @@ import { format } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
 import type { Contact, ScheduledMessage } from '@/lib/types';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useTranslations } from 'next-intl';
-
-
-const initialContacts: Contact[] = [
-  { id: '1', name: 'Alice Johnson', email: 'alice@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
-  { id: '2', name: 'Bob Williams', email: 'bob@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
-  { id: '3', name: 'Charlie Brown', email: 'charlie@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
-];
-
-const initialScheduledMessages: ScheduledMessage[] = [
-  {
-    id: '1',
-    contacts: [initialContacts[0]],
-    content: 'Hi Alice, just a reminder about our meeting tomorrow at 10 AM. See you then!',
-    scheduledAt: new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
-    status: 'scheduled',
-  },
-  {
-    id: '2',
-    contacts: [initialContacts[1]],
-    content: 'Hey Bob, did you get a chance to look at the proposal? Let me know your thoughts.',
-    scheduledAt: new Date(new Date().getTime() + 2 * 24 * 60 * 60 * 1000),
-    status: 'scheduled',
-    templateId: '2',
-  },
-  {
-    id: '4',
-    contacts: [initialContacts[0], initialContacts[1], initialContacts[2]],
-    content: 'Hi team, project update meeting is scheduled for Friday. Please confirm your availability.',
-    scheduledAt: new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000),
-    status: 'scheduled',
-  },
-];
-
+import { useData } from '@/lib/data-provider';
 
 const formSchema = z.object({
   contactIds: z.array(z.string()).nonempty({ message: 'Please select at least one contact.' }),
@@ -72,6 +40,7 @@ const formSchema = z.object({
 
 export default function EditScheduledMessagePage() {
   const params = useParams();
+  const router = useRouter();
   const id = params.id as string;
   const t = useTranslations('EditScheduledMessagePage');
   const tFreestyle = useTranslations('FreestyleMessagePage');
@@ -80,9 +49,10 @@ export default function EditScheduledMessagePage() {
   const tContent = useTranslations('TemplateFormDialog');
   const tContacts = useTranslations('ScheduleFromTemplatePage');
   const tGeneral = useTranslations('General');
+  
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [message, setMessage] = useState<ScheduledMessage | null>(null);
-  const [contacts] = useState<Contact[]>(initialContacts);
+  const { contacts, getScheduledMessageById, updateScheduledMessage } = useData();
   const { toast } = useToast();
   const [contactSearchTerm, setContactSearchTerm] = useState('');
 
@@ -103,7 +73,7 @@ export default function EditScheduledMessagePage() {
 
   useEffect(() => {
     if (id) {
-        const messageToEdit = initialScheduledMessages.find(m => m.id === id);
+        const messageToEdit = getScheduledMessageById(id);
         if (messageToEdit) {
             setMessage(messageToEdit);
             form.reset({
@@ -114,14 +84,13 @@ export default function EditScheduledMessagePage() {
             });
         }
     }
-  }, [id, form]);
+  }, [id, form, getScheduledMessageById]);
 
   const handleAiEnrich = async () => {
     toast({ title: "AI enrichment coming soon!" });
   };
   
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    // Override zod validation messages with translated ones
     const validation = z.object({
         contactIds: z.array(z.string()).nonempty({ message: tForm('selectContactsError') }),
         content: z.string().min(10, tForm('contentError')),
@@ -137,11 +106,25 @@ export default function EditScheduledMessagePage() {
         return;
     }
 
-    console.log(values);
+    const { scheduledAtDate, scheduledAtTime, contactIds, content } = values;
+    const [hours, minutes] = scheduledAtTime.split(':').map(Number);
+    const scheduledAt = new Date(scheduledAtDate);
+    scheduledAt.setHours(hours, minutes);
+
+    const messageToUpdate: Omit<ScheduledMessage, 'id'|'status'> = {
+      contacts: contacts.filter(c => contactIds.includes(c.id)),
+      content,
+      scheduledAt,
+      templateId: message?.templateId,
+    }
+
+    updateScheduledMessage(id, messageToUpdate);
+
     toast({
       title: tToast('messageUpdated'),
       description: tToast('messageUpdatedDescription'),
     });
+    router.push('/scheduled');
   };
 
   if (!message) {

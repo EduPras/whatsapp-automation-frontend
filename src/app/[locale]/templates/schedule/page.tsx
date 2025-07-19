@@ -25,21 +25,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
-import type { Contact, Template } from '@/lib/types';
+import type { Contact, Template, ScheduledMessage } from '@/lib/types';
 import { useTranslations } from 'next-intl';
-import { AppLayout } from '@/components/app-layout';
-
-const initialContacts: Contact[] = [
-  { id: '1', name: 'Alice Johnson', email: 'alice@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
-  { id: '2', name: 'Bob Williams', email: 'bob@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
-  { id: '3', name: 'Charlie Brown', email: 'charlie@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
-  { id: '4', name: 'Diana Prince', email: 'diana@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
-];
-
-const initialTemplates: Template[] = [
-    { id: '1', title: 'Welcome Message', content: 'Hi {{client_name}}, welcome!', createdAt: new Date(), folder: 'General' },
-    { id: '2', title: 'Appointment Reminder', content: 'Reminder for \'{{appointment_time}}\'.', createdAt: new Date(), folder: 'Appointment Reminders' }
-];
+import { useData } from '@/lib/data-provider';
 
 const formSchema = z.object({
   contactIds: z.array(z.string()).nonempty({ message: 'Please select at least one contact.' }),
@@ -54,8 +42,9 @@ export default function ScheduleFromTemplatePage() {
   const tForm = useTranslations('ScheduleForm');
   const tToast = useTranslations('Toast');
   const tGeneral = useTranslations('General');
+  
+  const { contacts, getTemplateById, scheduleMessage } = useData();
   const [template, setTemplate] = useState<Template | null>(null);
-  const [contacts] = useState<Contact[]>(initialContacts);
   const { toast } = useToast();
   const [contactSearchTerm, setContactSearchTerm] = useState('');
 
@@ -69,10 +58,10 @@ export default function ScheduleFromTemplatePage() {
 
   useEffect(() => {
     if (templateId) {
-      const foundTemplate = initialTemplates.find(t => t.id === templateId);
+      const foundTemplate = getTemplateById(templateId);
       setTemplate(foundTemplate || null);
     }
-  }, [templateId]);
+  }, [templateId, getTemplateById]);
   
   
   const selectedContactsCount = form.watch('contactIds').length;
@@ -82,21 +71,33 @@ export default function ScheduleFromTemplatePage() {
   );
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    // Override zod validation messages with translated ones
     const validation = z.object({
         contactIds: z.array(z.string()).nonempty({ message: tForm('selectContactsError') }),
         scheduledAtDate: z.date({ required_error: tForm('dateError') }),
         scheduledAtTime: z.string().regex(/^([01]\\d|2[0-3]):([0-5]\\d)$/, tForm('timeError')),
     }).safeParse(values);
 
-    if (!validation.success) {
+    if (!validation.success || !template) {
         form.setError('contactIds', { message: validation.error.formErrors.fieldErrors.contactIds?.join(', ') });
         form.setError('scheduledAtDate', { message: validation.error.formErrors.fieldErrors.scheduledAtDate?.join(', ') });
         form.setError('scheduledAtTime', { message: validation.error.formErrors.fieldErrors.scheduledAtTime?.join(', ') });
         return;
     }
 
-    console.log(values);
+    const { scheduledAtDate, scheduledAtTime, contactIds } = values;
+    const [hours, minutes] = scheduledAtTime.split(':').map(Number);
+    const scheduledAt = new Date(scheduledAtDate);
+    scheduledAt.setHours(hours, minutes);
+
+    const messageToSchedule: Omit<ScheduledMessage, 'id' | 'status'> = {
+      contacts: contacts.filter(c => contactIds.includes(c.id)),
+      content: template.content,
+      scheduledAt,
+      templateId: template.id,
+    }
+
+    scheduleMessage(messageToSchedule);
+    
     toast({
       title: tToast('messageScheduled'),
       description: tToast('messageScheduledDescription', { count: values.contactIds.length }),

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useState, useEffect, useMemo } from 'react';
 import { PlusCircle, CalendarClock, Send, MoreHorizontal, Pencil, Trash2, Search, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import type { ScheduledMessage, Contact, Template } from '@/lib/types';
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
@@ -36,50 +35,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-
-const initialContacts: Contact[] = [
-  { id: '1', name: 'Alice Johnson', email: 'alice@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
-  { id: '2', name: 'Bob Williams', email: 'bob@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
-  { id: '3', name: 'Charlie Brown', email: 'charlie@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
-];
-
-const initialTemplates: Template[] = [
-    { id: '1', title: 'Welcome Message', content: 'Hi {{client_name}}, welcome!', createdAt: new Date(), folder: 'General' },
-    { id: '2', title: 'Appointment Reminder', content: 'Reminder for \'{{appointment_time}}\'.', createdAt: new Date(), folder: 'Appointment Reminders' }
-];
-
-const initialScheduledMessages: ScheduledMessage[] = [
-  {
-    id: '1',
-    contacts: [initialContacts[0]],
-    content: 'Hi Alice, just a reminder about our meeting tomorrow at 10 AM. See you then!',
-    scheduledAt: new Date(new Date().getTime() + 24 * 60 * 60 * 1000), // Tomorrow
-    status: 'scheduled',
-  },
-  {
-    id: '2',
-    contacts: [initialContacts[1]],
-    content: 'Hey Bob, did you get a chance to look at the proposal? Let me know your thoughts.',
-    scheduledAt: new Date(new Date().getTime() + 2 * 24 * 60 * 60 * 1000), // In 2 days
-    status: 'scheduled',
-    templateId: '2',
-  },
-  {
-    id: '3',
-    contacts: [initialContacts[0]],
-    content: 'Welcome aboard, Alice! We are thrilled to have you.',
-    scheduledAt: new Date(new Date().getTime() - 24 * 60 * 60 * 1000), // Yesterday
-    status: 'sent',
-    templateId: '1',
-  },
-   {
-    id: '4',
-    contacts: [initialContacts[0], initialContacts[1], initialContacts[2]],
-    content: 'Hi team, project update meeting is scheduled for Friday. Please confirm your availability.',
-    scheduledAt: new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000), // In 3 days
-    status: 'scheduled',
-  },
-];
+import { useData } from '@/lib/data-provider';
 
 const FormattedDate = ({ date }: { date: Date }) => {
     const [isClient, setIsClient] = useState(false);
@@ -95,7 +51,7 @@ const FormattedDate = ({ date }: { date: Date }) => {
 }
 
 export default function ScheduledMessagesPage() {
-  const [messages, setMessages] = useState<ScheduledMessage[]>(initialScheduledMessages);
+  const { scheduledMessages, deleteScheduledMessage, templates } = useData();
   const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const t = useTranslations('ScheduledPage');
@@ -103,26 +59,26 @@ export default function ScheduledMessagesPage() {
 
   const handleDeleteConfirm = () => {
     if (messageToDelete) {
-      setMessages(messages.filter(m => m.id !== messageToDelete));
+      deleteScheduledMessage(messageToDelete);
       setMessageToDelete(null);
     }
   };
 
   const getTemplateName = (templateId?: string) => {
       if (!templateId) return <Badge variant="secondary">{t('manual')}</Badge>;
-      const template = initialTemplates.find(t => t.id === templateId);
+      const template = templates.find(t => t.id === templateId);
       return template ? <Badge variant="outline">{template.title}</Badge> : <Badge variant="secondary">{t('manual')}</Badge>;
   }
 
   const filteredMessages = useMemo(() => {
-    if (!searchTerm) return messages;
+    if (!searchTerm) return scheduledMessages;
 
     const lowercasedFilter = searchTerm.toLowerCase();
-    return messages.filter(msg =>
+    return scheduledMessages.filter(msg =>
       msg.contacts.some(c => c.name.toLowerCase().includes(lowercasedFilter) || c.email.toLowerCase().includes(lowercasedFilter)) ||
       msg.content.toLowerCase().includes(lowercasedFilter)
     );
-  }, [messages, searchTerm]);
+  }, [scheduledMessages, searchTerm]);
 
   const upcomingMessages = filteredMessages.filter(m => m.status === 'scheduled');
   const sentMessages = filteredMessages.filter(m => m.status === 'sent');

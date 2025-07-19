@@ -24,16 +24,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
-import type { Contact } from '@/lib/types';
+import type { ScheduledMessage } from '@/lib/types';
 import { Checkbox } from '@/components/ui/checkbox';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-
-const initialContacts: Contact[] = [
-  { id: '1', name: 'Alice Johnson', email: 'alice@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
-  { id: '2', name: 'Bob Williams', email: 'bob@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
-  { id: '3', name: 'Charlie Brown', email: 'charlie@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
-];
+import { useData } from '@/lib/data-provider';
 
 const formSchema = z.object({
   contactIds: z.array(z.string()).nonempty({ message: 'Please select at least one contact.' }),
@@ -43,7 +38,7 @@ const formSchema = z.object({
 });
 
 export default function FreestyleSchedulePage() {
-  const [contacts] = useState<Contact[]>(initialContacts);
+  const { contacts, scheduleMessage } = useData();
   const [isAiLoading, setIsAiLoading] = useState(false);
   const { toast } = useToast();
   const [contactSearchTerm, setContactSearchTerm] = useState('');
@@ -73,7 +68,6 @@ export default function FreestyleSchedulePage() {
   };
   
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    // Override zod validation messages with translated ones
     const validation = z.object({
         contactIds: z.array(z.string()).nonempty({ message: tForm('selectContactsError') }),
         content: z.string().min(10, tForm('contentError')),
@@ -89,11 +83,24 @@ export default function FreestyleSchedulePage() {
         return;
     }
 
-    console.log(values);
+    const { scheduledAtDate, scheduledAtTime, contactIds, content } = values;
+    const [hours, minutes] = scheduledAtTime.split(':').map(Number);
+    const scheduledAt = new Date(scheduledAtDate);
+    scheduledAt.setHours(hours, minutes);
+
+    const messageToSchedule: Omit<ScheduledMessage, 'id' | 'status'> = {
+      contacts: contacts.filter(c => contactIds.includes(c.id)),
+      content,
+      scheduledAt,
+    }
+
+    scheduleMessage(messageToSchedule);
+
     toast({
       title: tToast('messageScheduled'),
       description: tToast('messageScheduledDescription', { count: values.contactIds.length }),
     });
+    form.reset();
   };
 
   return (

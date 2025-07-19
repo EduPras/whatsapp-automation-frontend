@@ -1,7 +1,6 @@
 
 "use client";
 
-import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import '../app/globals.css';
 import { CalendarClock, Inbox, MessageSquareText, FolderPlus, Folder, Trash2, CalendarCheck, Settings, LogOut, PanelLeft, User } from "lucide-react";
@@ -33,7 +32,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-
 import type { Folder as FolderType } from '@/lib/types';
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -56,14 +54,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
-import { LoginPage } from './login-page';
-
-const initialFolders: FolderType[] = [
-  { id: '1', name: 'Marketing' },
-  { id: '2', name: 'Appointment Reminders' },
-  { id: '3', name: 'General' },
-];
+import { useData } from '@/lib/data-provider';
 
 function FloatingSidebarTrigger() {
     const { isMobile, toggleSidebar } = useSidebar();
@@ -86,18 +77,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const tButtons = useTranslations('Buttons');
   const tHeader = useTranslations('Header');
   
-  const [folders, setFolders] = useState<FolderType[]>(initialFolders);
+  const { folders, addFolder, deleteFolder } = useData();
   const [isFolderFormOpen, setIsFolderFormOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
   const [folderToDelete, setFolderToDelete] = useState<FolderType | null>(null);
 
   const handleSaveFolder = () => {
     if (newFolderName.trim()) {
-      const newFolder: FolderType = {
-        id: (folders.length + 1).toString(),
-        name: newFolderName.trim(),
-      };
-      setFolders([...folders, newFolder]);
+      addFolder(newFolderName.trim());
       setNewFolderName('');
       setIsFolderFormOpen(false);
     }
@@ -105,7 +92,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   const handleDeleteFolder = () => {
     if (folderToDelete) {
-      setFolders(folders.filter(f => f.id !== folderToDelete.id));
+      deleteFolder(folderToDelete.id);
       setFolderToDelete(null);
     }
   };

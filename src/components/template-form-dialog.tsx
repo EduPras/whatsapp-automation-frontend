@@ -18,7 +18,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -37,12 +36,13 @@ import type { Template, Folder } from '@/lib/types';
 import { enrichTemplateContent } from '@/ai/flows/template-content-enrichment';
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from 'next-intl';
+import { useData } from '@/lib/data-provider';
 
 interface TemplateFormDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   template: Template | null;
-  onSave: (data: Omit<Template, 'id' | 'createdAt'>) => void;
+  onClose: () => void;
   folders: Folder[];
   activeFolder: string;
 }
@@ -57,7 +57,7 @@ export function TemplateFormDialog({
   isOpen,
   onOpenChange,
   template,
-  onSave,
+  onClose,
   folders,
   activeFolder,
 }: TemplateFormDialogProps) {
@@ -67,6 +67,7 @@ export function TemplateFormDialog({
   const tButtons = useTranslations('Buttons');
   const tSidebar = useTranslations('Sidebar');
   const tToast = useTranslations('Toast');
+  const { saveTemplate } = useData();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -121,7 +122,6 @@ export function TemplateFormDialog({
   };
   
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    // Override zod validation messages with translated ones
     const validation = z.object({
         title: z.string().min(3, t('titleError')),
         content: z.string().min(10, t('contentError')),
@@ -135,7 +135,8 @@ export function TemplateFormDialog({
         return;
     }
     
-    onSave(values);
+    saveTemplate(values, template?.id);
+    onClose();
   };
 
   return (

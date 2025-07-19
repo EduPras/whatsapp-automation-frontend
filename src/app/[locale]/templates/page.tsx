@@ -7,7 +7,7 @@ import { PlusCircle, MessageSquareText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TemplateCard } from '@/components/template-card';
 import { TemplateFormDialog } from '@/components/template-form-dialog';
-import type { Template, Folder as FolderType } from '@/lib/types';
+import type { Template } from '@/lib/types';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,44 +19,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useTranslations } from 'next-intl';
+import { useData } from '@/lib/data-provider';
 
-
-const initialFolders: FolderType[] = [
-  { id: '1', name: 'Marketing' },
-  { id: '2', name: 'Appointment Reminders' },
-  { id: '3', name: 'General' },
-];
-
-const initialTemplates: Template[] = [
-  {
-    id: '1',
-    title: 'Welcome Message',
-    content: 'Hi {{client_name}}, welcome to our service! We are excited to have you on board. Let us know if you have any questions.',
-    createdAt: new Date('2023-10-26T10:00:00Z'),
-    folder: 'General',
-  },
-  {
-    id: '2',
-    title: 'Appointment Reminder',
-    content: 'Hi {{client_name}}, this is a reminder for your appointment tomorrow at \'{{appointment_time}}\'. We look forward to seeing you!',
-    createdAt: new Date('2023-10-25T15:30:00Z'),
-    folder: 'Appointment Reminders',
-  },
-  {
-    id: '3',
-    title: 'Promotional Offer',
-    content: 'Hi {{client_name}}, we have a special offer for you! Get 20% off on your next purchase with the code PROMO20. Don\'t miss out!',
-    createdAt: new Date('2023-10-24T11:00:00Z'),
-    folder: 'Marketing',
-  },
-  {
-    id: '4',
-    title: 'Follow-up',
-    content: 'Hi {{client_name}}, just following up on our last conversation. Let me know if you need anything else.',
-    createdAt: new Date('2023-10-23T11:00:00Z'),
-    folder: 'General',
-  },
-];
 
 export default function TemplatesPage() {
   const searchParams = useSearchParams();
@@ -65,8 +29,7 @@ export default function TemplatesPage() {
   const tSidebar = useTranslations('Sidebar');
   const tButtons = useTranslations('Buttons');
   
-  const [folders] = useState<FolderType[]>(initialFolders);
-  const [templates, setTemplates] = useState<Template[]>(initialTemplates);
+  const { folders, templates, deleteTemplate } = useData();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [templateToDelete, setTemplateToDelete] = useState<string | null>(null);
@@ -96,25 +59,9 @@ export default function TemplatesPage() {
 
   const handleDeleteConfirm = () => {
     if (templateToDelete) {
-      setTemplates(templates.filter(t => t.id !== templateToDelete));
+      deleteTemplate(templateToDelete);
       setTemplateToDelete(null);
     }
-  };
-
-  const handleSaveTemplate = (templateData: Omit<Template, 'id' | 'createdAt'>) => {
-    if (selectedTemplate) {
-      setTemplates(templates.map(t =>
-        t.id === selectedTemplate.id ? { ...selectedTemplate, ...templateData } : t
-      ));
-    } else {
-      const newTemplate: Template = {
-        id: (templates.length + 1).toString(),
-        createdAt: new Date(),
-        ...templateData,
-      };
-      setTemplates([newTemplate, ...templates]);
-    }
-    setIsFormOpen(false);
   };
 
   const filteredTemplates = activeFolder === 'All Templates'
@@ -164,7 +111,7 @@ export default function TemplatesPage() {
         isOpen={isFormOpen}
         onOpenChange={setIsFormOpen}
         template={selectedTemplate}
-        onSave={handleSaveTemplate}
+        onClose={() => setIsFormOpen(false)}
         folders={folders}
         activeFolder={activeFolder}
       />
