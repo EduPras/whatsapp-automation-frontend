@@ -126,8 +126,8 @@ export default function ScheduledMessagesPage() {
                         <TableRow>
                             <TableHead>Contact</TableHead>
                             <TableHead>Content</TableHead>
-                            <TableHead>Scheduled At</TableHead>
-                            <TableHead>Template</TableHead>
+                            <TableHead className="hidden md:table-cell">Scheduled At</TableHead>
+                            <TableHead className="hidden md:table-cell">Template</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -142,15 +142,15 @@ export default function ScheduledMessagesPage() {
                                         </Avatar>
                                         <div>
                                             <div className="font-medium">{msg.contact.name}</div>
-                                            <div className="text-sm text-muted-foreground">{msg.contact.email}</div>
+                                            <div className="text-sm text-muted-foreground hidden md:block">{msg.contact.email}</div>
                                         </div>
                                     </div>
                                 </TableCell>
                                 <TableCell>
                                     <p className="max-w-xs truncate text-sm text-muted-foreground">{msg.content}</p>
                                 </TableCell>
-                                <TableCell><FormattedDate date={msg.scheduledAt} /></TableCell>
-                                <TableCell>{getTemplateName(msg.templateId)}</TableCell>
+                                <TableCell className="hidden md:table-cell"><FormattedDate date={msg.scheduledAt} /></TableCell>
+                                <TableCell className="hidden md:table-cell">{getTemplateName(msg.templateId)}</TableCell>
                                 <TableCell className="text-right">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
@@ -199,8 +199,8 @@ export default function ScheduledMessagesPage() {
                         <TableRow>
                             <TableHead>Contact</TableHead>
                             <TableHead>Content</TableHead>
-                            <TableHead>Sent At</TableHead>
-                            <TableHead>Template</TableHead>
+                            <TableHead className="hidden md:table-cell">Sent At</TableHead>
+                            <TableHead className="hidden md:table-cell">Template</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -214,15 +214,15 @@ export default function ScheduledMessagesPage() {
                                         </Avatar>
                                         <div>
                                             <div className="font-medium">{msg.contact.name}</div>
-                                            <div className="text-sm text-muted-foreground">{msg.contact.email}</div>
+                                            <div className="text-sm text-muted-foreground hidden md:block">{msg.contact.email}</div>
                                         </div>
                                     </div>
                                 </TableCell>
                                 <TableCell>
                                     <p className="max-w-xs truncate text-sm text-muted-foreground">{msg.content}</p>
                                 </TableCell>
-                                <TableCell><FormattedDate date={msg.scheduledAt} /></TableCell>
-                                <TableCell>{getTemplateName(msg.templateId)}</TableCell>
+                                <TableCell className="hidden md:table-cell"><FormattedDate date={msg.scheduledAt} /></TableCell>
+                                <TableCell className="hidden md:table-cell">{getTemplateName(msg.templateId)}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
