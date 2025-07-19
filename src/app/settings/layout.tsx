@@ -1,7 +1,7 @@
 
 "use client";
 
-import { CalendarClock, Inbox, MessageSquareText, FolderPlus, Folder, Settings } from "lucide-react";
+import { CalendarClock, Inbox, MessageSquareText, FolderPlus, Folder, Settings, Trash2, CalendarCheck } from "lucide-react";
 import Link from "next/link";
 import { Header } from '@/components/header';
 import { Toaster } from "@/components/ui/toaster";
@@ -17,7 +17,8 @@ import {
   SidebarSeparator,
   SidebarGroup,
   SidebarGroupLabel,
-  SidebarGroupContent
+  SidebarGroupContent,
+  SidebarMenuAction
 } from '@/components/ui/sidebar';
 import type { Folder as FolderType } from '@/lib/types';
 import { useState } from "react";
@@ -30,6 +31,16 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Input } from '@/components/ui/input';
 
 const initialFolders: FolderType[] = [
@@ -46,6 +57,7 @@ export default function AppLayout({
   const [folders, setFolders] = useState<FolderType[]>(initialFolders);
   const [isFolderFormOpen, setIsFolderFormOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
+  const [folderToDelete, setFolderToDelete] = useState<FolderType | null>(null);
 
   const handleSaveFolder = () => {
     if (newFolderName.trim()) {
@@ -56,6 +68,13 @@ export default function AppLayout({
       setFolders([...folders, newFolder]);
       setNewFolderName('');
       setIsFolderFormOpen(false);
+    }
+  };
+  
+  const handleDeleteFolder = () => {
+    if (folderToDelete) {
+      setFolders(folders.filter(f => f.id !== folderToDelete.id));
+      setFolderToDelete(null);
     }
   };
 
@@ -106,16 +125,29 @@ export default function AppLayout({
                                 </Link>
                              </SidebarMenuButton>
                         </SidebarMenuItem>
-                        {folders.map(folder => (
+                        {folders.map(folder => {
+                          const isAppointmentFolder = folder.name === 'Appointment Reminders';
+                          return (
                             <SidebarMenuItem key={folder.id}>
                                 <SidebarMenuButton asChild tooltip={folder.name}>
                                     <Link href={`/templates?folder=${folder.name}`}>
-                                        <Folder/>
+                                        {isAppointmentFolder ? <CalendarCheck /> : <Folder />}
                                         {folder.name}
                                     </Link>
                                 </SidebarMenuButton>
+                                {!isAppointmentFolder && (
+                                    <SidebarMenuAction 
+                                      showOnHover
+                                      onClick={() => setFolderToDelete(folder)}
+                                      className="text-muted-foreground hover:text-destructive"
+                                      aria-label={`Delete ${folder.name} folder`}
+                                    >
+                                        <Trash2/>
+                                    </SidebarMenuAction>
+                                )}
                             </SidebarMenuItem>
-                        ))}
+                          )
+                        })}
                     </SidebarMenu>
                 </SidebarGroupContent>
             </SidebarGroup>
@@ -151,6 +183,23 @@ export default function AppLayout({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      <AlertDialog open={!!folderToDelete} onOpenChange={() => setFolderToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the folder "{folderToDelete?.name}". Any templates inside will be unassigned from this folder.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setFolderToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteFolder} className="bg-destructive hover:bg-destructive/90">
+              Delete Folder
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </SidebarProvider>
   );
 }
