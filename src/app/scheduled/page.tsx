@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PlusCircle, CalendarClock, Send, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { ScheduledMessage, Contact, Template } from '@/lib/types';
@@ -33,6 +33,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
+import { Loader2 } from 'lucide-react';
+
 
 const initialContacts: Contact[] = [
   { id: '1', name: 'Alice Johnson', email: 'alice@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
@@ -69,6 +71,15 @@ const initialScheduledMessages: ScheduledMessage[] = [
     templateId: '1',
   },
 ];
+
+const FormattedDate = ({ date }: { date: Date }) => {
+    const [isClient, setIsClient] = useState(false);
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
+    return isClient ? <>{format(date, 'PPP p')}</> : <Loader2 className="h-4 w-4 animate-spin" />;
+}
 
 export default function ScheduledMessagesPage() {
   const [messages, setMessages] = useState<ScheduledMessage[]>(initialScheduledMessages);
@@ -138,7 +149,7 @@ export default function ScheduledMessagesPage() {
                                 <TableCell>
                                     <p className="max-w-xs truncate text-sm text-muted-foreground">{msg.content}</p>
                                 </TableCell>
-                                <TableCell>{format(msg.scheduledAt, 'PPP p')}</TableCell>
+                                <TableCell><FormattedDate date={msg.scheduledAt} /></TableCell>
                                 <TableCell>{getTemplateName(msg.templateId)}</TableCell>
                                 <TableCell className="text-right">
                                     <DropdownMenu>
@@ -210,7 +221,7 @@ export default function ScheduledMessagesPage() {
                                 <TableCell>
                                     <p className="max-w-xs truncate text-sm text-muted-foreground">{msg.content}</p>
                                 </TableCell>
-                                <TableCell>{format(msg.scheduledAt, 'PPP p')}</TableCell>
+                                <TableCell><FormattedDate date={msg.scheduledAt} /></TableCell>
                                 <TableCell>{getTemplateName(msg.templateId)}</TableCell>
                             </TableRow>
                         ))}
