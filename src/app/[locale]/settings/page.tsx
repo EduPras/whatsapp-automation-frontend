@@ -9,14 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from 'next-intl';
-import { AppLayout } from '@/components/app-layout';
 
 export default function SettingsPage() {
+    const t = useTranslations('SettingsPage');
+    const tToast = useTranslations('Toast');
     const [remindersEnabled, setRemindersEnabled] = useState(true);
     const [hoursBefore, setHoursBefore] = useState(24);
     const { toast } = useToast();
-    const t = useTranslations('SettingsPage');
-    const tToast = useTranslations('Toast');
 
     const handleSaveChanges = () => {
         console.log({
@@ -30,7 +29,6 @@ export default function SettingsPage() {
     };
     
     return (
-        <AppLayout>
           <div>
               <h1 className="text-3xl font-bold font-headline tracking-tight mb-8">
                   {t('title')}
@@ -88,6 +86,5 @@ export default function SettingsPage() {
                   </CardContent>
               </Card>
           </div>
-        </AppLayout>
     );
 }

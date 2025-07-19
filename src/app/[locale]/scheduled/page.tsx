@@ -36,7 +36,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { AppLayout } from "@/components/app-layout";
 
 const initialContacts: Contact[] = [
   { id: '1', name: 'Alice Johnson', email: 'alice@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
@@ -129,7 +128,6 @@ export default function ScheduledMessagesPage() {
   const sentMessages = filteredMessages.filter(m => m.status === 'sent');
 
   return (
-    <AppLayout>
       <div>
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
           <h1 className="text-3xl font-bold font-headline tracking-tight flex items-center gap-2">
@@ -323,6 +321,5 @@ export default function ScheduledMessagesPage() {
           </AlertDialogContent>
         </AlertDialog>
       </div>
-    </AppLayout>
   );
 }

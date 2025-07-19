@@ -29,7 +29,6 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useTranslations } from 'next-intl';
-import { AppLayout } from '@/components/app-layout';
 
 
 const initialContacts: Contact[] = [
@@ -74,11 +73,6 @@ const formSchema = z.object({
 export default function EditScheduledMessagePage() {
   const params = useParams();
   const id = params.id as string;
-  const [isAiLoading, setIsAiLoading] = useState(false);
-  const [message, setMessage] = useState<ScheduledMessage | null>(null);
-  const [contacts] = useState<Contact[]>(initialContacts);
-  const { toast } = useToast();
-  const [contactSearchTerm, setContactSearchTerm] = useState('');
   const t = useTranslations('EditScheduledMessagePage');
   const tFreestyle = useTranslations('FreestyleMessagePage');
   const tForm = useTranslations('ScheduleForm');
@@ -86,6 +80,11 @@ export default function EditScheduledMessagePage() {
   const tContent = useTranslations('TemplateFormDialog');
   const tContacts = useTranslations('ScheduleFromTemplatePage');
   const tGeneral = useTranslations('General');
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [message, setMessage] = useState<ScheduledMessage | null>(null);
+  const [contacts] = useState<Contact[]>(initialContacts);
+  const { toast } = useToast();
+  const [contactSearchTerm, setContactSearchTerm] = useState('');
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -147,17 +146,14 @@ export default function EditScheduledMessagePage() {
 
   if (!message) {
     return (
-      <AppLayout>
         <div className="flex justify-center items-center h-full">
             <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
             <p className="mt-4 text-muted-foreground">{tGeneral('loading')}</p>
         </div>
-      </AppLayout>
     );
   }
 
   return (
-    <AppLayout>
     <div>
        <div className="mb-8">
         <Button asChild variant="outline" size="sm">
@@ -339,6 +335,5 @@ export default function EditScheduledMessagePage() {
             </CardContent>
         </Card>
     </div>
-    </AppLayout>
   );
 }

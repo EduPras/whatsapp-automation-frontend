@@ -28,7 +28,6 @@ import type { Contact } from '@/lib/types';
 import { Checkbox } from '@/components/ui/checkbox';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { AppLayout } from '@/components/app-layout';
 
 const initialContacts: Contact[] = [
   { id: '1', name: 'Alice Johnson', email: 'alice@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
@@ -98,7 +97,6 @@ export default function FreestyleSchedulePage() {
   };
 
   return (
-    <AppLayout>
       <div>
         <div className="mb-8">
           <Button asChild variant="outline" size="sm">
@@ -279,6 +277,5 @@ export default function FreestyleSchedulePage() {
             </CardContent>
         </Card>
       </div>
-    </AppLayout>
   );
 }

@@ -50,14 +50,14 @@ const formSchema = z.object({
 export default function ScheduleFromTemplatePage() {
   const searchParams = useSearchParams();
   const templateId = searchParams.get('templateId');
-  const [template, setTemplate] = useState<Template | null>(null);
-  const [contacts] = useState<Contact[]>(initialContacts);
-  const { toast } = useToast();
-  const [contactSearchTerm, setContactSearchTerm] = useState('');
   const t = useTranslations('ScheduleFromTemplatePage');
   const tForm = useTranslations('ScheduleForm');
   const tToast = useTranslations('Toast');
   const tGeneral = useTranslations('General');
+  const [template, setTemplate] = useState<Template | null>(null);
+  const [contacts] = useState<Contact[]>(initialContacts);
+  const { toast } = useToast();
+  const [contactSearchTerm, setContactSearchTerm] = useState('');
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -105,17 +105,14 @@ export default function ScheduleFromTemplatePage() {
 
   if (!template) {
     return (
-      <AppLayout>
         <div className="text-center">
             <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
             <p className="mt-4 text-muted-foreground">{tGeneral('loading')}</p>
         </div>
-      </AppLayout>
     );
   }
 
   return (
-    <AppLayout>
       <div>
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-bold font-headline tracking-tight text-center">
@@ -272,6 +269,5 @@ export default function ScheduleFromTemplatePage() {
             </CardContent>
         </Card>
       </div>
-    </AppLayout>
   );
 }
