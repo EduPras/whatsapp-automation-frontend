@@ -38,7 +38,7 @@ const initialContacts: Contact[] = [
 
 const initialTemplates: Template[] = [
     { id: '1', title: 'Welcome Message', content: 'Hi {{client_name}}, welcome!', createdAt: new Date(), folder: 'General' },
-    { id: '2', title: 'Appointment Reminder', content: 'Reminder for {{appointment_time}}.', createdAt: new Date(), folder: 'Appointments' }
+    { id: '2', title: 'Appointment Reminder', content: 'Reminder for {{appointment_time}}.', createdAt: new Date(), folder: 'Appointment Reminders' }
 ];
 
 const formSchema = z.object({

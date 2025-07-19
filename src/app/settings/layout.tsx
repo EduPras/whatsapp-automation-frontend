@@ -1,7 +1,7 @@
 
 "use client";
 
-import { CalendarClock, Inbox, MessageSquareText, FolderPlus, Folder } from "lucide-react";
+import { CalendarClock, Inbox, MessageSquareText, FolderPlus, Folder, Settings } from "lucide-react";
 import Link from "next/link";
 import { Header } from '@/components/header';
 import { Toaster } from "@/components/ui/toaster";
@@ -14,7 +14,6 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarProvider,
-  SidebarTrigger,
   SidebarSeparator,
   SidebarGroup,
   SidebarGroupLabel,
@@ -120,13 +119,12 @@ export default function AppLayout({
                     </SidebarMenu>
                 </SidebarGroupContent>
             </SidebarGroup>
-
           </SidebarContent>
         </Sidebar>
 
         <SidebarInset>
           <Header />
-          <main>
+          <main className="p-8">
             {children}
           </main>
           <Toaster />

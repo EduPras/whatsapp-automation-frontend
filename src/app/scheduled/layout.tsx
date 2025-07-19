@@ -35,7 +35,7 @@ import { Input } from '@/components/ui/input';
 
 const initialFolders: FolderType[] = [
   { id: '1', name: 'Marketing' },
-  { id: '2', name: 'Appointments' },
+  { id: '2', name: 'Appointment Reminders' },
   { id: '3', name: 'General' },
 ];
 
