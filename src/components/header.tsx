@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { LogOut, Settings, Search } from 'lucide-react';
+import { LogOut, Settings } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -11,13 +11,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from './ui/sidebar';
-import { Input } from './ui/input';
 
 export function Header() {
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-card shadow-sm">
       <div className="flex h-16 items-center px-4 sm:px-6 lg:px-8">
-        <div className="md:hidden">
+        <div className="xl:hidden">
             <SidebarTrigger />
         </div>
         <div className="flex-1 px-4 md:px-6">

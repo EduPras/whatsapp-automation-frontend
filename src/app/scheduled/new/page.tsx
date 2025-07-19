@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { CalendarIcon, Clock, Send, Sparkles, Loader2, Users, Search } from 'lucide-react';
+import { CalendarIcon, Clock, Send, Sparkles, Loader2, Users, Search, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -26,6 +26,7 @@ import { format } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
 import type { Contact } from '@/lib/types';
 import { Checkbox } from '@/components/ui/checkbox';
+import Link from 'next/link';
 
 const initialContacts: Contact[] = [
   { id: '1', name: 'Alice Johnson', email: 'alice@example.com', avatarUrl: 'https://placehold.co/40x40.png' },
@@ -75,6 +76,15 @@ export default function FreestyleSchedulePage() {
 
   return (
     <div>
+      <div className="mb-8">
+        <Button asChild variant="outline" size="sm">
+            <Link href="/scheduled">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Scheduled
+            </Link>
+        </Button>
+      </div>
+
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-bold font-headline tracking-tight text-center">
           Freestyle Message
