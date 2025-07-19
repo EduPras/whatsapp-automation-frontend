@@ -58,7 +58,7 @@
     "folderError": "Por favor, selecione uma pasta.",
     "contentLabel": "Conteúdo",
     "enrichWithAI": "Enriquecer com IA",
-    "contentPlaceholder": "Escreva sua mensagem aqui. Use {{variable}} para placeholders.",
+    "contentPlaceholder": "Escreva sua mensagem aqui. Use '{{variable}}' para placeholders.",
     "contentError": "O conteúdo deve ter pelo menos 10 caracteres.",
     "preview": "Pré-visualização da Mensagem",
     "previewPlaceholder": "Sua mensagem aparecerá aqui...",

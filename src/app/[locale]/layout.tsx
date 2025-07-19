@@ -264,7 +264,7 @@ function AppLayout({ children, locale }: { children: React.ReactNode; locale: st
 
 export default function LocaleLayout({
   children,
-  params,
+  params
 }: Readonly<{
   children: React.ReactNode;
   params: { locale: string };
@@ -273,7 +273,7 @@ export default function LocaleLayout({
   const locale = params.locale;
   
   return (
-    <html lang={locale}>
+    <>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -284,6 +284,6 @@ export default function LocaleLayout({
           <AppLayout locale={locale}>{children}</AppLayout>
         </NextIntlClientProvider>
       </body>
-    </html>
+    </>
   );
 }

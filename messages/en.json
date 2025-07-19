@@ -58,7 +58,7 @@
     "folderError": "Please select a folder.",
     "contentLabel": "Content",
     "enrichWithAI": "Enrich with AI",
-    "contentPlaceholder": "Write your message here. Use {{variable}} for placeholders.",
+    "contentPlaceholder": "Write your message here. Use '{{variable}}' for placeholders.",
     "contentError": "Content must be at least 10 characters long.",
     "preview": "Message Preview",
     "previewPlaceholder": "Your message will appear here...",
