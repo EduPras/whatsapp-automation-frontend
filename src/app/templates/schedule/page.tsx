@@ -87,7 +87,7 @@ export default function ScheduleFromTemplatePage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+    <div className="max-w-3xl mx-auto">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-bold font-headline tracking-tight text-center">
           Schedule from Template
@@ -95,162 +95,144 @@ export default function ScheduleFromTemplatePage() {
         <div/>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <Card className="lg:col-span-2">
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2"><FileText className="h-5 w-5 text-primary"/> {template.title}</CardTitle>
-                <CardDescription>Schedule this message to be sent to multiple contacts.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Template Content</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="p-4 border rounded-md bg-secondary/50">
-                                    <p className="text-sm text-secondary-foreground whitespace-pre-wrap">{template.content}</p>
+      <Card>
+          <CardHeader>
+              <CardTitle className="flex items-center gap-2"><FileText className="h-5 w-5 text-primary"/> {template.title}</CardTitle>
+              <CardDescription>Schedule this message to be sent to multiple contacts.</CardDescription>
+          </CardHeader>
+          <CardContent>
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                      <Card>
+                          <CardHeader>
+                              <CardTitle>Template Content</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                              <div className="p-4 border rounded-md bg-secondary/50">
+                                  <p className="text-sm text-secondary-foreground whitespace-pre-wrap">{template.content}</p>
 
-                                </div>
-                            </CardContent>
-                        </Card>
-                         <FormField
-                            control={form.control}
-                            name="contactIds"
-                            render={() => (
-                                <FormItem>
-                                    <div className="mb-4">
-                                        <FormLabel className="text-base">Contacts</FormLabel>
-                                        <FormDescription>
-                                        Select the contacts to send this message to.
-                                        </FormDescription>
-                                    </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-h-60 overflow-y-auto p-2 border rounded-md">
-                                    {contacts.map((item) => (
-                                        <FormField
-                                        key={item.id}
-                                        control={form.control}
-                                        name="contactIds"
-                                        render={({ field }) => {
-                                            return (
-                                            <FormItem
-                                                key={item.id}
-                                                className="flex flex-row items-start space-x-3 space-y-0"
-                                            >
-                                                <FormControl>
-                                                <Checkbox
-                                                    checked={field.value?.includes(item.id)}
-                                                    onCheckedChange={(checked) => {
-                                                    return checked
-                                                        ? field.onChange([...(field.value || []), item.id])
-                                                        : field.onChange(
-                                                            field.value?.filter(
-                                                            (value) => value !== item.id
-                                                            )
-                                                        )
-                                                    }}
-                                                />
-                                                </FormControl>
-                                                <FormLabel className="font-normal">
-                                                {item.name}
-                                                </FormLabel>
-                                            </FormItem>
-                                            )
-                                        }}
-                                        />
-                                    ))}
-                                    </div>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                            />
+                              </div>
+                          </CardContent>
+                      </Card>
+                        <FormField
+                          control={form.control}
+                          name="contactIds"
+                          render={() => (
+                              <FormItem>
+                                  <div className="mb-4">
+                                      <FormLabel className="text-base">Contacts</FormLabel>
+                                      <FormDescription>
+                                      Select the contacts to send this message to.
+                                      </FormDescription>
+                                  </div>
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-h-60 overflow-y-auto p-2 border rounded-md">
+                                  {contacts.map((item) => (
+                                      <FormField
+                                      key={item.id}
+                                      control={form.control}
+                                      name="contactIds"
+                                      render={({ field }) => {
+                                          return (
+                                          <FormItem
+                                              key={item.id}
+                                              className="flex flex-row items-start space-x-3 space-y-0"
+                                          >
+                                              <FormControl>
+                                              <Checkbox
+                                                  checked={field.value?.includes(item.id)}
+                                                  onCheckedChange={(checked) => {
+                                                  return checked
+                                                      ? field.onChange([...(field.value || []), item.id])
+                                                      : field.onChange(
+                                                          field.value?.filter(
+                                                          (value) => value !== item.id
+                                                          )
+                                                      )
+                                                  }}
+                                              />
+                                              </FormControl>
+                                              <FormLabel className="font-normal">
+                                              {item.name}
+                                              </FormLabel>
+                                          </FormItem>
+                                          )
+                                      }}
+                                      />
+                                  ))}
+                                  </div>
+                                  <FormMessage />
+                              </FormItem>
+                          )}
+                          />
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                              control={form.control}
+                              name="scheduledAtDate"
+                              render={({ field }) => (
+                                  <FormItem className="flex flex-col">
+                                  <FormLabel>Schedule Date</FormLabel>
+                                  <Popover>
+                                      <PopoverTrigger asChild>
+                                      <FormControl>
+                                          <Button
+                                          variant={"outline"}
+                                          className={cn(
+                                              "w-full justify-start text-left font-normal",
+                                              !field.value && "text-muted-foreground"
+                                          )}
+                                          >
+                                          <CalendarIcon className="mr-2 h-4 w-4" />
+                                          {field.value ? (
+                                              format(field.value, "PPP")
+                                          ) : (
+                                              <span>Pick a date</span>
+                                          )}
+                                          </Button>
+                                      </FormControl>
+                                      </PopoverTrigger>
+                                      <PopoverContent className="w-auto p-0" align="start">
+                                      <Calendar
+                                          mode="single"
+                                          selected={field.value}
+                                          onSelect={field.onChange}
+                                          disabled={(date) =>
+                                              date < new Date(new Date().setHours(0,0,0,0))
+                                          }
+                                          initialFocus
+                                      />
+                                      </PopoverContent>
+                                  </Popover>
+                                  <FormMessage />
+                                  </FormItem>
+                              )}
+                          />
                             <FormField
-                                control={form.control}
-                                name="scheduledAtDate"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-col">
-                                    <FormLabel>Schedule Date</FormLabel>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                        <FormControl>
-                                            <Button
-                                            variant={"outline"}
-                                            className={cn(
-                                                "w-full justify-start text-left font-normal",
-                                                !field.value && "text-muted-foreground"
-                                            )}
-                                            >
-                                            <CalendarIcon className="mr-2 h-4 w-4" />
-                                            {field.value ? (
-                                                format(field.value, "PPP")
-                                            ) : (
-                                                <span>Pick a date</span>
-                                            )}
-                                            </Button>
-                                        </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                        <Calendar
-                                            mode="single"
-                                            selected={field.value}
-                                            onSelect={field.onChange}
-                                            disabled={(date) =>
-                                                date < new Date(new Date().setHours(0,0,0,0))
-                                            }
-                                            initialFocus
-                                        />
-                                        </PopoverContent>
-                                    </Popover>
-                                    <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                             <FormField
-                                control={form.control}
-                                name="scheduledAtTime"
-                                render={({ field }) => (
-                                    <FormItem>
-                                    <FormLabel>Schedule Time</FormLabel>
-                                    <FormControl>
-                                         <div className="relative">
-                                            <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                            <Input type="time" className="pl-10" {...field} />
-                                        </div>
-                                    </FormControl>
-                                    <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-
-                         <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
-                            <Send className="mr-2 h-4 w-4" />
-                            Schedule for {form.getValues('contactIds').length} contacts
-                        </Button>
-                    </form>
-                </Form>
-            </CardContent>
-        </Card>
-
-        <div className="bg-secondary/50 flex flex-col items-center justify-center p-8 rounded-lg">
-            <h3 className="text-lg font-semibold mb-4 text-muted-foreground font-headline">Message Preview</h3>
-            <div className="relative w-full max-w-[280px] h-[560px] bg-black rounded-[40px] border-[10px] border-black shadow-2xl overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-full bg-white p-4">
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-5 bg-black rounded-b-lg"></div>
-                    <div className="mt-8 space-y-4">
-                      <div className="flex items-end">
-                          <div className="bg-primary text-primary-foreground p-3 rounded-2xl rounded-bl-sm max-w-[80%] break-words">
-                              <p className="text-sm whitespace-pre-wrap">{template.content.replace('{{client_name}}', 'Sample Contact') || "Your message will appear here..."}</p>
-                          </div>
+                              control={form.control}
+                              name="scheduledAtTime"
+                              render={({ field }) => (
+                                  <FormItem>
+                                  <FormLabel>Schedule Time</FormLabel>
+                                  <FormControl>
+                                        <div className="relative">
+                                          <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                          <Input type="time" className="pl-10" {...field} />
+                                      </div>
+                                  </FormControl>
+                                  <FormMessage />
+                                  </FormItem>
+                              )}
+                          />
                       </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-      </div>
+
+                        <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
+                          <Send className="mr-2 h-4 w-4" />
+                          Schedule for {form.getValues('contactIds').length} contacts
+                      </Button>
+                  </form>
+              </Form>
+          </CardContent>
+      </Card>
     </div>
   );
 }
