@@ -4,7 +4,7 @@
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import '../app/globals.css';
-import { CalendarClock, Inbox, MessageSquareText, FolderPlus, Folder, Trash2, CalendarCheck, Settings, LogOut, PanelLeft } from "lucide-react";
+import { CalendarClock, Inbox, MessageSquareText, FolderPlus, Folder, Trash2, CalendarCheck, Settings, LogOut, PanelLeft, User } from "lucide-react";
 import Link from "next/link";
 import { Toaster } from "@/components/ui/toaster";
 import {
@@ -24,6 +24,16 @@ import {
   SidebarTrigger,
   useSidebar
 } from '@/components/ui/sidebar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
 import type { Folder as FolderType } from '@/lib/types';
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -48,7 +58,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { LoginPage } from './login-page';
-import { Header } from './header';
 
 const initialFolders: FolderType[] = [
   { id: '1', name: 'Marketing' },
@@ -56,21 +65,31 @@ const initialFolders: FolderType[] = [
   { id: '3', name: 'General' },
 ];
 
+function FloatingSidebarTrigger() {
+    const { isMobile, toggleSidebar } = useSidebar();
+
+    if (!isMobile) {
+        return null;
+    }
+
+    return (
+        <div className="fixed bottom-4 right-4 z-50">
+            <Button size="icon" onClick={toggleSidebar}>
+                <PanelLeft />
+            </Button>
+        </div>
+    );
+}
+
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const t = useTranslations('Sidebar');
   const tButtons = useTranslations('Buttons');
-  const pathname = usePathname();
+  const tHeader = useTranslations('Header');
   
   const [folders, setFolders] = useState<FolderType[]>(initialFolders);
   const [isFolderFormOpen, setIsFolderFormOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
   const [folderToDelete, setFolderToDelete] = useState<FolderType | null>(null);
-
-  const isLoginPage = pathname.endsWith('/en') || pathname.endsWith('/pt-BR') || pathname === '/';
-  
-  if (isLoginPage) {
-    return <LoginPage />;
-  }
 
   const handleSaveFolder = () => {
     if (newFolderName.trim()) {
@@ -93,7 +112,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
-      <div className="flex flex-1 h-screen">
+      <div className="flex flex-1 h-screen bg-secondary/50">
         <Sidebar side="left" collapsible="icon">
           <SidebarHeader>
              <div className="flex items-center justify-between p-2">
@@ -101,7 +120,42 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                   <MessageSquareText className="h-6 w-6 text-primary" />
                   <span className="font-semibold font-headline">{t('appName')}</span>
                </div>
-                <SidebarTrigger className="hidden xl:flex"/>
+                <div className="hidden xl:flex">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                                <Avatar className="h-8 w-8">
+                                <AvatarImage src="https://placehold.co/40x40.png" alt={tHeader('user')} data-ai-hint="user avatar" />
+                                <AvatarFallback>U</AvatarFallback>
+                                </Avatar>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-56" align="end" forceMount>
+                        <DropdownMenuLabel className="font-normal">
+                            <div className="flex flex-col space-y-1">
+                            <p className="text-sm font-medium leading-none">{tHeader('user')}</p>
+                            <p className="text-xs leading-none text-muted-foreground">
+                                user@example.com
+                            </p>
+                            </div>
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                            <Link href="/settings">
+                            <Settings className="mr-2 h-4 w-4" />
+                            <span>{tHeader('settings')}</span>
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                            <Link href="/">
+                            <LogOut className="mr-2 h-4 w-4" />
+                            <span>{tHeader('logout')}</span>
+                            </Link>
+                        </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
              </div>
           </SidebarHeader>
           <SidebarContent>
@@ -177,16 +231,17 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               </SidebarGroupContent>
             </SidebarGroup>
           </SidebarContent>
+           <SidebarFooter>
+             <SidebarTrigger className="xl:hidden w-full" />
+           </SidebarFooter>
         </Sidebar>
 
-        <div className="flex flex-col flex-1">
-          <Header />
-          <main className="flex-1 p-4 md:p-8 overflow-y-auto">
+        <main className="flex-1 p-4 md:p-8 overflow-y-auto">
             {children}
-          </main>
-          <Toaster />
-        </div>
+        </main>
+        <Toaster />
       </div>
+      <FloatingSidebarTrigger />
 
       <Dialog open={isFolderFormOpen} onOpenChange={setIsFolderFormOpen}>
         <DialogContent>
