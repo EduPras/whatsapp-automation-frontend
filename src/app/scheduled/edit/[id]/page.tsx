@@ -122,7 +122,7 @@ export default function EditScheduledMessagePage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+    <div className="max-w-3xl mx-auto">
        <div className="mb-8">
         <Button asChild variant="outline" size="sm">
             <Link href="/scheduled">
@@ -139,8 +139,7 @@ export default function EditScheduledMessagePage() {
         <div/>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <Card className="lg:col-span-2">
+        <Card>
             <CardHeader>
                 <CardTitle>Compose Message</CardTitle>
                 <CardDescription>Update the details for your scheduled message.</CardDescription>
@@ -267,25 +266,6 @@ export default function EditScheduledMessagePage() {
                 </Form>
             </CardContent>
         </Card>
-
-        <div className="bg-secondary/50 flex flex-col items-center justify-center p-8 rounded-lg">
-            <h3 className="text-lg font-semibold mb-4 text-muted-foreground font-headline">Message Preview</h3>
-            <div className="relative w-full max-w-[280px] h-[560px] bg-black rounded-[40px] border-[10px] border-black shadow-2xl overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-full bg-white p-4">
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-5 bg-black rounded-b-lg"></div>
-                    <div className="mt-8 space-y-4">
-                      <div className="flex items-end">
-                          <div className="bg-primary text-primary-foreground p-3 rounded-2xl rounded-bl-sm max-w-[80%] break-words">
-                              <p className="text-sm whitespace-pre-wrap">{contentValue || "Your message will appear here..."}</p>
-                          </div>
-                      </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-      </div>
     </div>
   );
 }
-
-    
