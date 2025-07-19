@@ -38,13 +38,13 @@ const initialContacts: Contact[] = [
 
 const initialTemplates: Template[] = [
     { id: '1', title: 'Welcome Message', content: 'Hi {{client_name}}, welcome!', createdAt: new Date(), folder: 'General' },
-    { id: '2', title: 'Appointment Reminder', content: 'Reminder for {{appointment_time}}.', createdAt: new Date(), folder: 'Appointment Reminders' }
+    { id: '2', title: 'Appointment Reminder', content: 'Reminder for \'{{appointment_time}}\'.', createdAt: new Date(), folder: 'Appointment Reminders' }
 ];
 
 const formSchema = z.object({
   contactIds: z.array(z.string()).nonempty({ message: 'Please select at least one contact.' }),
   scheduledAtDate: z.date({ required_error: "Please select a date." }),
-  scheduledAtTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:MM)."),
+  scheduledAtTime: z.string().regex(/^([01]\\d|2[0-3]):([0-5]\\d)$/, "Invalid time format (HH:MM)."),
 });
 
 export default function ScheduleFromTemplatePage() {
@@ -86,7 +86,7 @@ export default function ScheduleFromTemplatePage() {
     const validation = z.object({
         contactIds: z.array(z.string()).nonempty({ message: tForm('selectContactsError') }),
         scheduledAtDate: z.date({ required_error: tForm('dateError') }),
-        scheduledAtTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, tForm('timeError')),
+        scheduledAtTime: z.string().regex(/^([01]\\d|2[0-3]):([0-5]\\d)$/, tForm('timeError')),
     }).safeParse(values);
 
     if (!validation.success) {

@@ -39,7 +39,7 @@ const initialTemplates: Template[] = [
   {
     id: '2',
     title: 'Appointment Reminder',
-    content: 'Hi {{client_name}}, this is a reminder for your appointment tomorrow at {{appointment_time}}. We look forward to seeing you!',
+    content: 'Hi {{client_name}}, this is a reminder for your appointment tomorrow at \'{{appointment_time}}\'. We look forward to seeing you!',
     createdAt: new Date('2023-10-25T15:30:00Z'),
     folder: 'Appointment Reminders',
   },
