@@ -49,7 +49,7 @@ const initialFolders: FolderType[] = [
   { id: '3', name: 'General' },
 ];
 
-export default function AppLayout({
+export default function ScheduledLayout({
   children,
 }: {
   children: React.ReactNode;
