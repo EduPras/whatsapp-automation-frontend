@@ -80,7 +80,7 @@ export default function SettingsLayout({
 
   return (
     <SidebarProvider>
-      <div className="flex">
+      <div className="flex h-screen">
         <Sidebar side="left" collapsible="icon">
           <SidebarHeader>
             <div className="flex items-center justify-center p-2 group-data-[collapsible=icon]:hidden">
@@ -163,13 +163,13 @@ export default function SettingsLayout({
           </SidebarContent>
         </Sidebar>
 
-        <SidebarInset>
+        <div className="flex flex-col flex-1">
           <Header />
-          <main className="p-8">
+          <main className="flex-1 p-8 overflow-y-auto">
             {children}
           </main>
           <Toaster />
-        </SidebarInset>
+        </div>
       </div>
 
        <Dialog open={isFolderFormOpen} onOpenChange={setIsFolderFormOpen}>
